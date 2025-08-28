@@ -1,206 +1,273 @@
-# 🎬 영화용 냄새 구조 딥러닝 AI 시스템
+# AI 영화 향기 생성 시스템
 
-감독이 원하는 어떤 향이든 화학적으로 정확하게 구현해주는 전문 AI 도구
+영화 장면 기반 향수 추천 및 제조를 위한 딥러닝 AI 시스템입니다.
 
-## 🌐 웹 인터페이스 (NEW!)
+## 시스템 개요
 
-**Live Demo**: [Movie Scent AI Frontend](https://movie-scent-ai.vercel.app) 
+이 시스템은 영화의 특정 장면이나 감정을 분석하여 적합한 향수 조합을 추천하고, 화학적으로 정확한 향료 레시피를 생성하는 AI 도구입니다.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/junseong2im/Ai-project/tree/main/movie-scent-frontend)
+## 프로젝트 구조 및 파일 설명
 
-### ✨ 프론트엔드 기능
-- **실시간 장면 분석**: 자연어 입력으로 즉시 향수 추천
-- **인터랙티브 그래프**: Chart.js 기반 학습 시각화
-- **반응형 디자인**: 모든 디바이스에서 완벽한 UX
-- **Glass Morphism**: 현대적인 디자인 언어
+### 메인 실행 파일들
 
-## 🎯 핵심 철학
-**"AI는 의견을 내지 않는다 - 오직 감독의 요구사항을 구현한다"**
+**app.py**
+- FastAPI 기반 웹 서버 구현
+- REST API 엔드포인트 제공 (/recommend, /analyze, /health)
+- CORS 설정 및 정적 파일 서빙
+- 비동기 처리로 성능 최적화
 
-## 🚀 주요 특징
+**start.py**  
+- 시스템 원클릭 실행 스크립트
+- 웹서버 자동 실행 및 브라우저 오픈
+- 환경 설정 자동 체크
 
-### 🔥 한계치 딥러닝 모델
-- **5,757,842개 매개변수** 초대형 신경망
-- **4,020개 영화 장면** 학습 데이터 (200배 확장)
-- **155차원 고차원 특성** 분석
-- **Multi-Head Attention** (16 헤드) + **Residual Networks**
+**enhanced_main_with_dl.py**
+- 딥러닝 통합 메인 실행 파일
+- 전체 시스템 테스트 및 검증 기능
 
-### ⚡ 실시간 성능
-- **0.001초** 초고속 처리
-- **70%+** 예측 신뢰도
-- **15개 향수 카테고리** 완전 분류
-- **자동 캐싱** 시스템
+### 핵심 AI 모듈 (core/)
 
-### 🎭 영화 장면 전문 분석
-- **로맨틱** → Floral/Oriental 구현
-- **공포** → Smoky/Earthy/Metallic 구현
-- **액션** → Intense/Leather 구현
-- **평화** → Fresh/Citrus 구현
+**movie_scent_ai.py**
+- 메인 딥러닝 모델 (5,757,842개 매개변수)
+- Multi-Head Attention 메커니즘 구현
+- 155차원 특성 벡터 처리
+- 영화 장면 → 향수 카테고리 분류
 
-## 📁 프로젝트 구조
+**real_time_movie_scent.py**
+- 실시간 향수 추천 엔진
+- 0.001초 초고속 추론
+- 캐싱 시스템으로 성능 최적화
+- 다중 입력 처리 (텍스트, 감정, 시각 요소)
 
-```
-ai_perfume/
-├── core/
-│   ├── movie_scent_ai.py              # 메인 딥러닝 시스템 (575만 매개변수)
-│   ├── real_time_movie_scent.py       # 실시간 추천 엔진
-│   ├── deep_learning_integration.py   # 기존 시스템 통합
-│   └── optimized_data_manager.py      # 효율적 데이터 관리
-├── data/
-│   ├── movie_scent_database.json      # 영화 장면 데이터베이스
-│   ├── raw/raw_perfume_data.csv       # 70,000+ 향수 데이터
-│   └── processed/                     # 전처리된 데이터 (Git LFS)
-├── models/
-│   ├── perfume_dl_model.pth          # 훈련된 딥러닝 모델 (Git LFS)
-│   └── advanced_recipe_generator.py  # Transformer 기반 레시피 생성
-├── movie-scent-frontend/              # Next.js 웹 인터페이스
-│   ├── app/
-│   │   ├── components/               # React 컴포넌트
-│   │   ├── page.tsx                 # 메인 페이지
-│   │   └── layout.tsx               # 레이아웃
-│   ├── package.json                 # 프론트엔드 의존성
-│   └── vercel.json                  # Vercel 배포 설정
-├── app.py                           # FastAPI 백엔드
-├── start.py                         # 원클릭 실행기
-└── enhanced_main_with_dl.py         # 통합 실행 파일
-```
+**deep_learning_integration.py**
+- 기존 시스템과 딥러닝 모델 통합
+- PyTorch 기반 신경망 모델 로딩
+- 배치 처리 및 GPU 가속 지원
 
-## 🛠️ 설치 및 실행
+**movie_capsule_formulator.py**
+- 영화 장면별 향수 캡슐 생성
+- 시간대별 향수 변화 시뮬레이션
+- 장면 전환에 맞는 향수 조합 계산
 
-### 1. 환경 설정
+**scent_simulator.py**
+- 화학적 향료 조합 시뮬레이션
+- 분자 구조 기반 향수 예측
+- 휘발성 및 지속성 계산
+
+**optimized_data_manager.py**
+- 대용량 데이터 효율적 관리
+- 메모리 최적화 데이터 로딩
+- 인덱싱 및 검색 성능 향상
+
+**scene_scent_matcher.py**
+- 영화 장면과 향수의 매칭 알고리즘
+- 감정 분석 기반 향수 추천
+- 컨텍스트 이해 및 분석
+
+### 데이터 관리 (data/)
+
+**movie_scent_database.json**
+- 4,020개 영화 장면 데이터베이스
+- 장르별, 감정별 분류 정보
+- 각 장면에 대한 향수 매핑 데이터
+
+**fragrance_materials_database.json**
+- 70,000+ 향료 성분 데이터베이스
+- 화학적 특성 및 조합 정보
+- 제조업체별 향료 분류
+
+**raw/raw_perfume_data.csv**
+- 원본 향수 데이터 (200,000+ 레코드)
+- 브랜드, 성분, 노트 정보
+- 시장 데이터 및 평점 포함
+
+**datasets/fragrance_test.json, fragrance_validation.json**
+- 딥러닝 모델 학습용 데이터셋
+- 훈련/검증/테스트 분할
+- 전처리된 특성 벡터 포함
+
+### 모델 파일 (models/)
+
+**advanced_recipe_generator.py**
+- Transformer 기반 향수 레시피 생성
+- 자연어 처리로 사용자 요구사항 분석
+- 화학적 제약 조건 고려한 레시피 생성
+
+**text_analyzer.py**
+- 텍스트 분석 모듈
+- TF-IDF 벡터화 (500차원)
+- 감정 분석 및 키워드 추출
+
+**recipe_generator.py**
+- 기본 향수 레시피 생성기
+- 비율 계산 및 최적화
+- 제조 공정 단계 생성
+
+**fragrance_dl_models/**
+- 훈련된 딥러닝 모델 파일들
+- best_model.pth: 최적 성능 모델
+- checkpoint_epoch_*.pth: 학습 중간 저장점
+- training_curves.png: 학습 곡선 시각화
+
+### 데이터 처리 (data_processing/)
+
+**advanced_data_processor.py**
+- 고급 데이터 전처리 파이프라인
+- 특성 공학 및 데이터 정규화
+- 결측값 처리 및 이상치 탐지
+
+**advanced_perfume_preprocessor.py**
+- 향수 데이터 특화 전처리
+- 화학 성분 분석 및 분류
+- 향수 노트 벡터화
+
+**perfume_data_processor.py**
+- 기본 향수 데이터 처리
+- 데이터 클리닝 및 검증
+- 형식 변환 및 표준화
+
+### 학습 시스템 (training/)
+
+**deep_learning_trainer.py**
+- 딥러닝 모델 학습 파이프라인
+- Adam 옵티마이저, 학습률 스케줄링
+- 조기 종료 및 모델 검증
+- 성능 메트릭 추적 및 로깅
+
+**run_training.py**
+- 학습 프로세스 실행 스크립트
+- 하이퍼파라미터 설정
+- 분산 학습 지원
+
+### 웹 프론트엔드 (movie-scent-frontend/)
+
+**app/page.tsx**
+- Next.js 메인 페이지 컴포넌트
+- 사용자 인터페이스 구현
+- API 호출 및 상태 관리
+
+**app/components/SceneInputForm.tsx**
+- 영화 장면 입력 폼 컴포넌트
+- 실시간 검증 및 자동완성
+- 다중 입력 필드 지원
+
+**app/components/TrainingVisualization.tsx**
+- Chart.js 기반 학습 시각화
+- 실시간 성능 모니터링
+- 인터랙티브 그래프 컴포넌트
+
+**app/components/ResultsDisplay.tsx**
+- 결과 표시 컴포넌트
+- 향수 추천 결과 렌더링
+- 레시피 및 성분 상세 정보
+
+### 테스트 파일들
+
+**test_movie_system.py**
+- 전체 영화 향수 시스템 통합 테스트
+- API 엔드포인트 검증
+- 성능 벤치마킹
+
+**test_api.py**
+- FastAPI 엔드포인트 유닛 테스트
+- 요청/응답 검증
+- 에러 핸들링 테스트
+
+**final_system_test.py**
+- 최종 시스템 검증 스크립트
+- 엔드투엔드 테스트
+- 성능 및 정확도 측정
+
+**quick_test.py**
+- 빠른 기능 검증 테스트
+- 개발 중 디버깅용
+- 핵심 기능 동작 확인
+
+### 설정 파일들
+
+**requirements.txt**
+- Python 의존성 패키지 목록
+- 버전 고정 및 호환성 관리
+
+**vercel.json**
+- Vercel 배포 설정
+- 라우팅 및 빌드 설정
+
+**.gitignore**
+- Git 버전 관리 제외 파일 목록
+- 대용량 파일 및 캐시 제외
+
+## 핵심 알고리즘
+
+### 딥러닝 모델 아키텍처
+- 입력층: 155차원 다중 특성 (텍스트, 감정, 시각, 시간)
+- 어텐션층: 16-Head Multi-Head Attention
+- 은닉층: [1024, 512, 256, 128, 64] 잔차 연결
+- 출력층: 이중 헤드 (강도 예측 + 카테고리 분류)
+
+### 특성 추출 시스템
+- 텍스트 분석: TF-IDF 벡터화 (500차원)
+- 감정 분석: 전용 벡터라이저 (200차원)
+- 시각 분석: 시각 요소 벡터화 (300차원)
+- 시간-날씨: 조합 특성 생성
+
+### 향수 카테고리 시스템 (15개)
+1. Citrus: bergamot, lemon, orange
+2. Floral: rose, jasmine, lily, violet
+3. Woody: cedar, sandalwood, pine
+4. Oriental: amber, vanilla, musk, oud
+5. Fresh: mint, eucalyptus, sea breeze
+6. Spicy: cinnamon, nutmeg, cardamom
+7. Fruity: apple, peach, berry
+8. Gourmand: chocolate, coffee, caramel
+9. Animalic: leather, musk, ambergris
+10. Herbal: basil, rosemary, thyme
+11. Aquatic: ocean, rain, marine
+12. Metallic: steel, iron, mineral
+13. Smoky: smoke, tobacco, fire
+14. Earthy: soil, moss, wet earth
+15. Synthetic: aldehydes, chemical
+
+## 성능 사양
+
+- 모델 크기: 5,757,842개 매개변수
+- 처리 속도: 0.001초/요청
+- 예측 정확도: 70%+ 신뢰도
+- 데이터 규모: 4,020개 학습 장면
+- 카테고리 분류: 15개 완전 분류
+
+## 설치 및 실행
+
+### 환경 설정
 ```bash
-pip install torch pandas numpy scikit-learn transformers
+pip install torch pandas numpy scikit-learn transformers fastapi uvicorn
 ```
 
-### 2. AI 백엔드 실행
+### AI 백엔드 실행
 ```bash
 cd ai_perfume
-python start.py  # 웹서버 자동 시작 (http://localhost:8000)
+python start.py
 ```
 
-### 3. 프론트엔드 개발 (선택사항)
+### 프론트엔드 개발
 ```bash
 cd movie-scent-frontend
 npm install
-npm run dev  # http://localhost:3000
+npm run dev
 ```
 
-### 4. Vercel 배포 (원클릭)
-```bash
-vercel --prod
-```
-
-## 💡 사용 방법
-
-### 감독 요구사항 → AI 구현
+### 사용 예시
 ```python
 from core.real_time_movie_scent import RealTimeMovieScentRecommender
 
 recommender = RealTimeMovieScentRecommender()
 
-# 감독의 요구사항
 result = recommender.recommend_for_scene(
     "비 오는 밤 옥상에서 이별하는 장면, 담배냄새와 빗물냄새 조합",
     scene_type="drama",
     mood="melancholy", 
     intensity_preference=8
 )
-
-# AI 결과: 정확한 향료 조합과 비율 제시
 ```
 
-## 🎨 15개 향수 카테고리 시스템
-
-1. **Citrus**: bergamot, lemon, orange
-2. **Floral**: rose, jasmine, lily, violet
-3. **Woody**: cedar, sandalwood, pine
-4. **Oriental**: amber, vanilla, musk, oud
-5. **Fresh**: mint, eucalyptus, sea breeze
-6. **Spicy**: cinnamon, nutmeg, cardamom
-7. **Fruity**: apple, peach, berry
-8. **Gourmand**: chocolate, coffee, caramel
-9. **Animalic**: leather, musk, ambergris
-10. **Herbal**: basil, rosemary, thyme
-11. **Aquatic**: ocean, rain, marine
-12. **Metallic**: steel, iron, mineral
-13. **Smoky**: smoke, tobacco, fire
-14. **Earthy**: soil, moss, wet earth
-15. **Synthetic**: aldehydes, chemical
-
-## 🧠 AI 시스템 아키텍처
-
-### 딥러닝 모델 구조
-- **입력층**: 155차원 다중 특성 (텍스트, 감정, 시각, 시간)
-- **어텐션층**: 16-Head Multi-Head Attention
-- **은닉층**: [1024, 512, 256, 128, 64] 잔차 연결
-- **출력층**: 이중 헤드 (강도 예측 + 카테고리 분류)
-
-### 특성 추출 시스템
-- **텍스트 분석**: TF-IDF 벡터화 (500차원)
-- **감정 분석**: 전용 벡터라이저 (200차원)
-- **시각 분석**: 시각 요소 벡터화 (300차원)
-- **시간-날씨**: 조합 특성 생성
-
-## 🎬 지원 영화 장르
-
-- **로맨틱**: The Notebook, La La Land
-- **공포**: The Shining, 호러 영화들
-- **액션**: Mad Max, John Wick
-- **SF**: Blade Runner 2049, Interstellar
-- **판타지**: Avatar, Spirited Away
-- **드라마**: Little Women, Her
-- **코미디**: Amélie, Grand Budapest Hotel
-
-## 📊 성능 지표
-
-- **모델 크기**: 5,757,842개 매개변수
-- **처리 속도**: 0.001초/요청
-- **예측 정확도**: 70%+ 신뢰도
-- **데이터 규모**: 4,020개 학습 장면
-- **카테고리 분류**: 15개 완전 분류
-
-## 🎯 특별한 점
-
-### AI는 절대 의견을 내지 않습니다
-- ❌ "이 향이 더 좋겠어요"
-- ❌ "로맨틱 장면에는 보통 이렇게 해요"
-- ❌ "제 추천은..."
-
-### AI는 오직 구현만 합니다
-- ✅ 감독 요구사항 분석
-- ✅ 화학적 구현 방법 계산
-- ✅ 정확한 향료 조합 제시
-- ✅ 실제 제작 가능한 레시피
-
-## 🏆 활용 분야
-
-- 🎬 **영화/드라마** 제작진용 향수 컨설팅
-- 🛍️ **향수 브랜드** 마케팅 도구
-- 🎭 **테마파크/체험관** 향수 연출
-- 📱 **개인 맞춤** 향수 추천 앱
-
-## 📈 업데이트 현황
-
-- [x] **웹/모바일 앱 인터페이스** ✅ (Next.js + Vercel)
-- [x] **실시간 처리 시스템** ✅ (FastAPI 백엔드)
-- [x] **인터랙티브 시각화** ✅ (Chart.js 그래프)
-- [ ] 이미지 분석 통합 (비전 AI)
-- [ ] 실제 향수 제조 공정 연동
-- [ ] 메타버스/VR 향수 체험
-
-## 🤝 기여하기
-
-1. 이슈 등록
-2. 포크 후 브랜치 생성
-3. 코드 작성 및 테스트
-4. 풀 리퀘스트 생성
-
-## 📜 라이선스
-
-MIT License - 자유롭게 사용 가능
-
----
-
-**"감독의 상상력을 현실로 구현하는 AI 도구"**
-
-🤖 *Generated with Advanced AI Perfume System v2.0*
+이 시스템은 영화 제작진, 향수 브랜드, 테마파크 등에서 활용할 수 있는 전문적인 AI 도구입니다.
