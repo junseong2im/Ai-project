@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Scent AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            letter-spacing: 2px;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        #sceneInput {
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #sceneInput:focus {
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        #sceneInput::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .scent-display {
+            margin-top: 40px;
+            min-height: 100px;
+        }
+
+        .scent-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #fff;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .scent-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scent-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .scent-intensity {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .intensity-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .intensity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+            border-radius: 4px;
+            transition: width 1s ease;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .loading {
+            opacity: 0.6;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Movie Scent AI</h1>
+        
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="sceneInput" 
+                placeholder="영화 장면을 설명해주세요... (예: 로맨틱한 해변가 석양 키스신)"
+                autocomplete="off"
+            >
+        </div>
+        
+        <div class="scent-display" id="scentDisplay">
+            <div class="loading" style="display: none;" id="loading">
+                향기를 분석하고 있습니다...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sceneInput = document.getElementById('sceneInput');
+        const scentDisplay = document.getElementById('scentDisplay');
+        const loading = document.getElementById('loading');
+
+        let debounceTimer;
+
+        sceneInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            
+            if (this.value.trim().length < 3) {
+                scentDisplay.innerHTML = '';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                analyzScene(this.value);
+            }, 800);
+        });
+
+        sceneInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                clearTimeout(debounceTimer);
+                analyzScene(this.value);
+            }
+        });
+
+        async function analyzScene(description) {
+            if (!description.trim()) return;
+
+            loading.style.display = 'block';
+            scentDisplay.innerHTML = '';
+            scentDisplay.appendChild(loading);
+
+            try {
+                const response = await fetch('/recommend_scent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        description: description,
+                        scene_type: 'auto',
+                        intensity: 'medium'
+                    })
+                });
+
+                const data = await response.json();
+                displayScents(data.recommendations || []);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                scentDisplay.innerHTML = '<div class="scent-item show" style="border-color: #ff6b6b;">오류가 발생했습니다. 다시 시도해주세요.</div>';
+            }
+
+            loading.style.display = 'none';
+        }
+
+        function displayScents(data) {
+            scentDisplay.innerHTML = '';
+            
+            const scents = data.recommendations || [];
+            const composition = data.composition || {};
+            
+            if (!scents || scents.length === 0) {
+                scentDisplay.innerHTML = '<div class="scent-item show">추천할 향기를 찾을 수 없습니다.</div>';
+                return;
+            }
+
+            // 향료 원료 정보 표시 (브랜드 정보 대신)
+            if (data.mixing_formula || composition.formula) {
+                const formulaDiv = document.createElement('div');
+                formulaDiv.className = 'scent-item show';
+                formulaDiv.style.marginBottom = '20px';
+                formulaDiv.style.borderColor = '#48dbfb';
+                
+                let formulaHtml = '<div class="scent-name">🧪 향료 원료 조합법</div>';
+                
+                const mixingFormula = data.mixing_formula || composition.formula;
+                
+                // 원료별 정확한 농도 표시
+                if (mixingFormula["원료별 정확한 농도"]) {
+                    formulaHtml += '<div style="margin: 15px 0;"><strong>📋 원료별 정확한 농도:</strong></div>';
+                    Object.entries(mixingFormula["원료별 정확한 농도"]).forEach(([name, info]) => {
+                        formulaHtml += `<div style="margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                            <strong>${name}</strong>: ${info.농도} (${info.백분율}) - ${info.휘발성}
+                        </div>`;
+                    });
+                }
+                
+                // 혼합 순서
+                if (mixingFormula["혼합 순서"]) {
+                    formulaHtml += '<div style="margin: 15px 0;"><strong>⚗️ 혼합 순서:</strong></div>';
+                    mixingFormula["혼합 순서"].forEach((step, index) => {
+                        formulaHtml += `<div style="margin: 5px 0;">${step}</div>`;
+                    });
+                }
+                
+                // 희석 비율
+                if (mixingFormula["희석 비율"]) {
+                    formulaHtml += '<div style="margin: 15px 0;"><strong>💧 희석 비율:</strong></div>';
+                    Object.entries(mixingFormula["희석 비율"]).forEach(([component, ratio]) => {
+                        formulaHtml += `<div style="margin: 5px 0;">${component}: ${ratio}</div>`;
+                    });
+                }
+                
+                // 기존 포맷 지원 (하위 호환성)
+                if (composition.top_notes && composition.top_notes.length > 0) {
+                    formulaHtml += `<div style="margin: 10px 0;"><strong>탑노트:</strong> ${composition.top_notes.map(n => n.name).join(', ')}</div>`;
+                }
+                if (composition.middle_notes && composition.middle_notes.length > 0) {
+                    formulaHtml += `<div style="margin: 10px 0;"><strong>미들노트:</strong> ${composition.middle_notes.map(n => n.name).join(', ')}</div>`;
+                }
+                if (composition.base_notes && composition.base_notes.length > 0) {
+                    formulaHtml += `<div style="margin: 10px 0;"><strong>베이스노트:</strong> ${composition.base_notes.map(n => n.name).join(', ')}</div>`;
+                }
+                
+                formulaDiv.innerHTML = formulaHtml;
+                scentDisplay.appendChild(formulaDiv);
+            }
+
+            // 개별 향료 표시
+            scents.forEach((scent, index) => {
+                setTimeout(() => {
+                    const scentItem = document.createElement('div');
+                    scentItem.className = 'scent-item';
+                    
+                    const intensity = scent.intensity || Math.random() * 100;
+                    const volatility = scent.volatility || 'medium';
+                    const category = scent.category || '일반';
+                    const longevity = scent.longevity || 5;
+                    
+                    // 휘발성에 따른 색상 변경
+                    let borderColor = '#fff';
+                    if (volatility === 'top') borderColor = '#ff6b6b';
+                    else if (volatility === 'middle') borderColor = '#feca57';
+                    else if (volatility === 'base') borderColor = '#48dbfb';
+                    
+                    scentItem.style.borderLeftColor = borderColor;
+                    
+                    scentItem.innerHTML = `
+                        <div class="scent-name">${scent.name || '향기'} (${category})</div>
+                        <div class="scent-intensity">
+                            강도: ${Math.round(intensity)}% | 
+                            휘발성: ${volatility} | 
+                            지속성: ${longevity}/10
+                        </div>
+                        <div class="intensity-bar">
+                            <div class="intensity-fill" style="width: ${intensity}%; background-color: ${borderColor};"></div>
+                        </div>
+                    `;
+                    
+                    scentDisplay.appendChild(scentItem);
+                    
+                    setTimeout(() => {
+                        scentItem.classList.add('show');
+                    }, 50);
+                }, index * 200 + 500); // 조합 정보 후에 표시
+            });
+
+            // 화학적 안정성 및 품질 관리 정보 표시
+            const mixingFormula = data.mixing_formula || composition.formula;
+            if (mixingFormula && (mixingFormula["화학적 안정성"] || mixingFormula["품질 관리"])) {
+                setTimeout(() => {
+                    const qualityDiv = document.createElement('div');
+                    qualityDiv.className = 'scent-item show';
+                    qualityDiv.style.marginTop = '20px';
+                    qualityDiv.style.opacity = '0.8';
+                    qualityDiv.style.fontSize = '0.9em';
+                    qualityDiv.style.borderColor = '#ff6b6b';
+                    
+                    let qualityHtml = '<div class="scent-name">🔬 화학적 안정성 & 품질관리</div>';
+                    
+                    if (mixingFormula["화학적 안정성"]) {
+                        qualityHtml += '<div style="margin: 10px 0;"><strong>🧪 화학적 안정성:</strong></div>';
+                        Object.entries(mixingFormula["화학적 안정성"]).forEach(([key, value]) => {
+                            qualityHtml += `<div style="margin: 3px 0;">${key}: ${value}</div>`;
+                        });
+                    }
+                    
+                    if (mixingFormula["품질 관리"]) {
+                        qualityHtml += '<div style="margin: 10px 0;"><strong>📋 품질 관리:</strong></div>';
+                        Object.entries(mixingFormula["품질 관리"]).forEach(([key, value]) => {
+                            qualityHtml += `<div style="margin: 3px 0;">${key}: ${value}</div>`;
+                        });
+                    }
+                    
+                    qualityDiv.innerHTML = qualityHtml;
+                    scentDisplay.appendChild(qualityDiv);
+                }, scents.length * 200 + 800);
+            }
+            
+            // 시스템 모드 및 처리 정보 표시
+            if (data.processing_time) {
+                setTimeout(() => {
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'scent-item show';
+                    infoDiv.style.marginTop = '20px';
+                    infoDiv.style.opacity = '0.6';
+                    infoDiv.style.fontSize = '0.85em';
+                    
+                    let systemMode = data.system_mode || 'STANDALONE_SIMULATOR';
+                    let modeColor = systemMode.includes('FULL_AI') ? '🚀' : '🔬';
+                    
+                    infoDiv.innerHTML = `
+                        <div class="scent-name">${modeColor} 시스템 정보</div>
+                        <div>처리 시간: ${data.processing_time.toFixed(3)}초</div>
+                        <div>시스템 모드: ${systemMode}</div>
+                        ${data.simulation_iterations ? `<div>시뮬레이션 반복: ${data.simulation_iterations}회</div>` : ''}
+                        ${data.scene_analysis ? `<div>감지된 감정: ${data.scene_analysis.detected_emotions ? data.scene_analysis.detected_emotions.join(', ') : '없음'}</div>` : ''}
+                    `;
+                    
+                    scentDisplay.appendChild(infoDiv);
+                }, scents.length * 200 + 1200);
+            }
+        }
+
+        // 초기 포커스
+        sceneInput.focus();
+    </script>
+</body>
+</html>

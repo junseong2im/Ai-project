@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI 시나리오 조향사 - 당신의 이야기를 향기로 표현합니다">
+    <meta name="keywords" content="AI, 향수, 조향, 시나리오, 감성">
+    <meta name="author" content="AI Perfumer">
+    <title>AI 시나리오 조향사</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3Njape.org5vuPBoAAAMUSURBVFiF7ZZdaBxVFMd/Z2Y3u9mPJE3S1KRN0zSxaYxVqUXig1D0QasgVBEUwQdFfBERX3wQH/RFEHyoICg++GBF8cEHQVHxRRQ/ClVrtbWtNWqSJvljd5PsZnfmzr0+7M7s7O5sY0tfBP9w2Zk759z/Peee+e+9wv9lYSOZhRA7gKeAw0AXEAfmgO+Bj6WUX7WKJYRY93/rQQhxQQjxsxBCNLH9JoR4XQgRbhVzs0UPAU8Dz0kp0w39EWAaWAU+BT6XUs41jN8P3AXcBwwB3wBvSCl/2BQBIcQR4FPgJynl0Q3s9wCvALcDKeAz4E0p5XST+QeAZ4G7gQXgXSnlp5sSEEK8CLwgpYxuYK+AJ4EngQwwBrwrpUw2zOsFngceAX4H3pNSTm5KQAixG/gL+FhK+XAL+33Aa8AhIAGcBN6XUuaEEF3A48CjQBw4BbwnpVxqFrNZEh4GFPBhC/sQ8DpwEFgCXgGOCyHuBe4EHgMWgbeAE1LKbKugrQTuAX6VUi60sD8G3AYsAy8BR4UQdwAPAveT3/5jwMlWm19XQAgRAm4FzrWwvwW4HsgALwNHhRC3AA+QL7M54DhwSkqpNxO4kUAXEAHmW9j3A9cBGvmtPwbcDNxLvhIWgBPAl1LKlhvfSCAJZIGuFvZ9QC+QBt4GTpPP9/3kj+Uy8DHwhZQy1y7ghgKyXGbXtLDvBXqAFPAOcBa4CbgHGAD+BE4BX0spjXYBWwmcB24UQnRLKZea2PcAPYAKvA+cAw4AdwO7gL+Bz4GvpJTL7QK1EjgDvAY8I4QYk1JebLDvAroBA/gQOA/cDhwGhoE/gC+Ar6WUqxsFaiogpUwLIV4kf+c/E0KMSCmTZftuIFKe+xP5I7gDGAUuAV8BZ6SUiY2CtPsQnQG+A0aAJ8oNQohuIFz+/Rv5jN8O7AUuA2eBM1LKpf8kUBY5DowD+4QQT5E/86vAz+Sz/VspZXwzcf4zASHEDiHEmBBiaCvX/wNgKPF8JyiJKwAAAABJRU5ErkJggg==">
+    <style>
+        /* --- 기본 스타일 및 레이아웃 --- */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --text-color: #333;
+            --light-text: #666;
+            --background: #f9f9f9;
+            --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- 헤더 스타일 --- */
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+                        linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%),
+                        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            animation: pattern-move 20s linear infinite;
+        }
+
+        @keyframes pattern-move {
+            0% { background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
+            100% { background-position: 20px 0, 20px 10px, 30px -10px, 10px 0px; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        /* --- 메인 콘텐츠 레이아웃 --- */
+        .main-content {
+            display: flex;
+            gap: 20px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .left-panel, .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- 카드 스타일 --- */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2, .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- 입력 섹션 --- */
+        .scene-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            resize: vertical;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .scene-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* --- 버튼 스타일 --- */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* --- 리플 효과 --- */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* --- 설정 섹션 --- */
+        .config-section h3 {
+            color: var(--secondary-color);
+        }
+
+        .config-item {
+            margin-bottom: 15px;
+        }
+
+        .config-item label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .config-item input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .config-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .config-item input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        /* --- 결과 섹션 --- */
+        .result-section {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .recipe-container {
+            background: var(--background);
+            border-radius: 12px;
+            padding: 25px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+        }
+
+        .recipe-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- 로딩 애니메이션 --- */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--primary-color);
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        /* --- 알림 스타일 --- */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .notification.warning {
+            border-left: 4px solid #FFC107;
+        }
+
+        .notification.error {
+            border-left: 4px solid #F44336;
+        }
+
+        /* --- 반응형 디자인 --- */
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* --- 툴팁 스타일 --- */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .tooltip.active::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-8px);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="favicon">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3Njape.org5vuPBoAAAMUSURBVFiF7ZZdaBxVFMd/Z2Y3u9mPJE3S1KRN0zSxaYxVqUXig1D0QasgVBEUwQdFfBERX3wQH/RFEHyoICg++GBF8cEHQVHxRRQ/ClVrtbWtNWqSJvljd5PsZnfmzr0+7M7s7O5sY0tfBP9w2Zk759z/Peee+e+9wv9lYSOZhRA7gKeAw0AXEAfmgO+Bj6WUX7WKJYRY93/rQQhxQQjxsxBCNLH9JoR4XQgRbhVzs0UPAU8Dz0kp0w39EWAaWAU+BT6XUs41jN8P3AXcBwwB3wBvSCl/2BQBIcQR4FPgJynl0Q3s9wCvALcDKeAz4E0p5XST+QeAZ4G7gQXgXSnlp5sSEEK8CLwgpYxuYK+AJ4EngQwwBrwrpUw2zOsFngceAX4H3pNSTm5KQAixG/gL+FhK+XAL+33Aa8AhIAGcBN6XUuaEEF3A48CjQBw4BbwnpVxqFrNZEh4GFPBhC/sQ8DpwEFgCXgGOCyHuBe4EHgMWgbeAE1LKbKugrQTuAX6VUi60sD8G3AYsAy8BR4UQdwAPAveT3/5jwMlWm19XQAgRAm4FzrWwvwW4HsgALwNHhRC3AA+QL7M54DhwSkqpNxO4kUAXEAHmW9j3A9cBGvmtPwbcDNxLvhIWgBPAl1LKlhvfSCAJZIGuFvZ9QC+QBt4GTpPP9/3kj+Uy8DHwhZQy1y7ghgKyXGbXtLDvBXqAFPAOcBa4CbgHGAD+BE4BX0spjXYBWwmcB24UQnRLKZea2PcAPYAKvA+cAw4AdwO7gL+Bz4GvpJTL7QK1EjgDvAY8I4QYk1JebLDvAroBA/gQOA/cDhwGhoE/gC+Ar6WUqxsFaiogpUwLIV4kf+c/E0KMSCmTZftuIFKe+xP5I7gDGAUuAV8BZ6SUiY2CtPsQnQG+A0aAJ8oNQohuIFz+/Rv5jN8O7AUuA2eBM1LKpf8kUBY5DowD+4QQT5E/86vAz+Sz/VspZXwzcf4zASHEDiHEmBBiaCvX/wNgKPF8JyiJKwAAAABJRU5ErkJggg==" alt="AI Perfumer">
+        </div>
+        <div class="card-header">
+            <h1>AI 시나리오 조향사</h1>
+            <p>당신의 이야기를 향기로 표현합니다</p>
+        </div>
+        <div class="card-body">
+            <p>AI Perfumer는 당신의 감정과 취향을 이해하고, 그것을 향기로 표현해드립니다. 향수 조향사의 경험을 통해 더 나은 결과를 제공합니다.</p>
+            <p>AI Perfumer는 당신의 감정과 취향을 이해하고, 그것을 향기로 표현해드립니다. 향수 조향사의 경험을 통해 더 나은 결과를 제공합니다.</p>
+        </div>
+        <div class="card-footer">
+            <button>시작하기</button>
+            <div class="meta-tags">
+                <span class="meta-tag">AI</span>
+                <span class="meta-tag">향수</span>
+                <span class="meta-tag">조향</span>
+                <span class="meta-tag">시나리오</span>
+                <span class="meta-tag">감성</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- 전역 변수 및 초기화 ---
+        let config = {
+            temperature: 0.9,
+            maxHistory: 10,
+            autosaveInterval: 5000
+        };
+        let history = [];
+        let currentRecipe = null;
+        let isGenerating = false;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            loadConfig();
+            loadHistory();
+            loadExampleScenes();
+            restoreDraft();
+            setupTooltips();
+        }
+
+        function setupEventListeners() {
+            // 키보드 단축키
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+            
+            // 자동 저장
+            setInterval(saveDraft, config.autosaveInterval);
+            
+            // 입력 필드 이벤트
+            const sceneInput = document.getElementById('sceneInput');
+            sceneInput.addEventListener('input', handleSceneInput);
+            
+            // 버튼 이벤트
+            setupButtonListeners();
+        }
+
+        function handleKeyboardShortcuts(e) {
+            // Ctrl/Cmd + Enter: 레시피 생성
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!isGenerating) generateRecipe();
+            }
+            
+            // Ctrl/Cmd + S: 현재 레시피 저장
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (currentRecipe) saveToHistory();
+            }
+        }
+
+        function setupButtonListeners() {
+            // 버튼 클릭 이벤트 설정
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // 버튼 클릭 효과
+                    const ripple = document.createElement('div');
+                    ripple.classList.add('ripple');
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 1000);
+                });
+            });
+        }
+
+        function handleSceneInput(e) {
+            const input = e.target;
+            // 입력 글자수 제한 (1000자)
+            if (input.value.length > 1000) {
+                input.value = input.value.substring(0, 1000);
+                showNotification('최대 1000자까지 입력 가능합니다.');
+            }
+            
+            // 자동 높이 조절
+            input.style.height = 'auto';
+            input.style.height = (input.scrollHeight) + 'px';
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }, 100);
+        }
+
+        // --- AI 생성 로직 개선 ---
+        async function generateRecipe() {
+            const sceneInput = document.getElementById('sceneInput').value.trim();
+            if (!sceneInput) {
+                showNotification('장면을 먼저 묘사해주세요!', 'warning');
+                return;
+            }
+            
+            if (isGenerating) {
+                showNotification('이미 생성 중입니다. 잠시만 기다려주세요.', 'warning');
+                return;
+            }
+
+            try {
+                isGenerating = true;
+                showLoadingState(true);
+                
+                // AI 생성 시뮬레이션
+                const recipe = await simulateAIGeneration(sceneInput);
+                currentRecipe = recipe;
+                
+                // 결과 표시
+                displayRecipe(recipe);
+                showLoadingState(false);
+                showNotification('레시피가 생성되었습니다!', 'success');
+                
+            } catch (error) {
+                console.error('레시피 생성 중 오류:', error);
+                showNotification('레시피 생성 중 오류가 발생했습니다.', 'error');
+            } finally {
+                isGenerating = false;
+            }
+        }
+
+        function showLoadingState(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+            document.getElementById('recipeContainer').classList.toggle('active', !show);
+            document.getElementById('exportButtons').classList.toggle('active', !show);
+        }
+
+        // --- 향수 노트 데이터베이스 확장 ---
+        const noteDatabase = {
+            top: {
+                fresh: ["Bergamot", "Lemon", "Lime", "Orange", "Grapefruit", "Mint", "Eucalyptus"],
+                marine: ["Sea Salt", "Ocean Breeze", "Aqua", "Marine Notes"],
+                spicy: ["Black Pepper", "Pink Pepper", "Cardamom", "Nutmeg"],
+                woody: ["Pine Needle", "Juniper Berry", "Cedar Leaf"],
+                green: ["Green Tea", "Bamboo", "Fresh Cut Grass"]
+            },
+            middle: {
+                floral: ["Rose", "Jasmine", "Lavender", "Lily", "Violet", "Iris", "Peony"],
+                green: ["Old Paper", "Wet Earth", "Moss", "Fern", "Green Leaves"],
+                smoky: ["Smoky Firewood", "Incense", "Tobacco"],
+                woody: ["Birch Tree", "Oak", "Cypress"],
+                spicy: ["Cinnamon", "Clove", "Ginger"]
+            },
+            base: {
+                sweet: ["Vanilla", "Hot Cocoa", "Tonka Bean", "Caramel", "Honey"],
+                musky: ["Musk", "Leather", "Ambergris", "Castoreum"],
+                woody: ["Sandalwood", "Cedarwood", "Patchouli", "Vetiver", "Oud"],
+                balsamic: ["Benzoin", "Myrrh", "Frankincense"]
+            }
+        };
+
+        // --- 향수 레시피 생성 로직 개선 ---
+        async function simulateAIGeneration(scene) {
+            // 감정 분석 시뮬레이션
+            const emotions = analyzeEmotions(scene);
+            
+            // 노트 선택 로직
+            const notes = selectNotes(scene, emotions);
+            
+            // 강도 계산
+            const intensity = calculateIntensity(emotions);
+            
+            // 레시피 구성
+            return {
+                scent_name: generateScentName(emotions),
+                description: generateDescription(scene, emotions),
+                analysis: {
+                    key_elements: extractKeyElements(scene),
+                    emotions: emotions,
+                    concept: generateConcept(emotions)
+                },
+                top_notes: {
+                    notes: notes.top,
+                    rationale: generateNoteRationale('top', notes.top, emotions)
+                },
+                middle_notes: {
+                    notes: notes.middle,
+                    rationale: generateNoteRationale('middle', notes.middle, emotions)
+                },
+                base_notes: {
+                    notes: notes.base,
+                    rationale: generateNoteRationale('base', notes.base, emotions)
+                },
+                intensity: intensity
+            };
+        }
+
+        // --- 감정 분석 및 노트 선택 로직 ---
+        function analyzeEmotions(scene) {
+            const keywords = scene.toLowerCase();
+            let emotions = [];
+            
+            // 감정 키워드 매핑
+            const emotionMap = {
+                '행복': ['기쁨', '즐거움', '설렘'],
+                '평화': ['고요함', '평온함', '차분함'],
+                '열정': ['강렬함', '활기참', '역동적'],
+                '우울': ['멜랑콜리', '쓸쓸함', '그리움'],
+                '신비': ['몽환적', '신비로움', '환상적']
+            };
+            
+            // 키워드 기반 감정 추출
+            Object.entries(emotionMap).forEach(([key, values]) => {
+                if (values.some(v => keywords.includes(v))) {
+                    emotions.push(key);
+                }
+            });
+            
+            // 기본 감정 추가
+            if (emotions.length === 0) {
+                emotions = ['평화', '신비'];
+            }
+            
+            return emotions;
+        }
+
+        function selectNotes(scene, emotions) {
+            const keywords = scene.toLowerCase();
+            let notes = {
+                top: [],
+                middle: [],
+                base: []
+            };
+            
+            // 씬 기반 노트 선택
+            if (keywords.includes('바다')) {
+                notes.top.push(...getRandom(noteDatabase.top.marine, 2));
+                notes.middle.push(...getRandom(noteDatabase.middle.floral, 1));
+            }
+            
+            if (keywords.includes('숲') || keywords.includes('나무')) {
+                notes.top.push(...getRandom(noteDatabase.top.woody, 1));
+                notes.middle.push(...getRandom(noteDatabase.middle.green, 1));
+                notes.base.push(...getRandom(noteDatabase.base.woody, 1));
+            }
+            
+            // 감정 기반 노트 선택
+            emotions.forEach(emotion => {
+                switch(emotion) {
+                    case '행복':
+                        notes.top.push(...getRandom(noteDatabase.top.fresh, 1));
+                        notes.middle.push(...getRandom(noteDatabase.middle.floral, 1));
+                        notes.base.push(...getRandom(noteDatabase.base.sweet, 1));
+                        break;
+                    case '평화':
+                        notes.top.push(...getRandom(noteDatabase.top.fresh, 1));
+                        notes.middle.push(...getRandom(noteDatabase.middle.green, 1));
+                        notes.base.push(...getRandom(noteDatabase.base.woody, 1));
+                        break;
+                    // ... 다른 감정들에 대한 처리
+                }
+            });
+            
+            // 기본 노트 채우기
+            if (notes.top.length === 0) notes.top = getRandom(noteDatabase.top.fresh, 2);
+            if (notes.middle.length === 0) notes.middle = getRandom(noteDatabase.middle.floral, 2);
+            if (notes.base.length === 0) notes.base = getRandom(noteDatabase.base.woody, 2);
+            
+            // 중복 제거
+            return {
+                top: [...new Set(notes.top)],
+                middle: [...new Set(notes.middle)],
+                base: [...new Set(notes.base)]
+            };
+        }
+
+        // --- 유틸리티 함수들 ---
+        function getRandom(arr, n) {
+            const result = new Array(n);
+            let len = arr.length;
+            const taken = new Array(len);
+            if (n > len) n = len;
+            while (n--) {
+                const x = Math.floor(Math.random() * len);
+                result[n] = arr[x in taken ? taken[x] : x];
+                taken[x] = --len in taken ? taken[len] : len;
+            }
+            return result;
+        }
+
+        function generateScentName(emotions) {
+            const adjectives = ['신비로운', '평화로운', '황홀한', '매혹적인', '우아한'];
+            const nouns = ['순간', '기억', '감성', '이야기', '여운'];
+            return `${getRandom(adjectives, 1)[0]} ${getRandom(nouns, 1)[0]}`;
+        }
+
+        function generateDescription(scene, emotions) {
+            return `${scene.substring(0, 50)}... 의 순간을 포착한 향수. ${emotions.join(', ')}의 감정을 불러일으킵니다.`;
+        }
+
+        function generateConcept(emotions) {
+            return `${emotions[0]}의 감성을 담아낸 우아한 향기`;
+        }
+
+        function calculateIntensity(emotions) {
+            // 감정 기반 강도 계산
+            const baseIntensity = 7;
+            const emotionIntensity = {
+                '열정': 2,
+                '행복': 1,
+                '평화': -1,
+                '우울': -1
+            };
+            
+            let intensity = baseIntensity;
+            emotions.forEach(emotion => {
+                if (emotionIntensity[emotion]) {
+                    intensity += emotionIntensity[emotion];
+                }
+            });
+            
+            // 5-10 범위로 제한
+            return Math.max(5, Math.min(10, intensity));
+        }
+
+        function generateNoteRationale(type, notes, emotions) {
+            const rationales = {
+                top: `첫인상은 ${notes.join(', ')}(으)로 시작하여 ${emotions[0]}의 순간을 표현합니다.`,
+                middle: `향의 중심은 ${notes.join(', ')}(으)로, ${emotions[0]}의 감정을 깊이있게 전달합니다.`,
+                base: `마지막으로 ${notes.join(', ')}의 잔향이 남아 ${emotions[0]}한 여운을 남깁니다.`
+            };
+            return rationales[type];
+        }
+
+        // --- 향수 레시피 표시 및 저장 ---
+        function displayRecipe(recipe) {
+            const recipeContainer = document.getElementById('recipeContainer');
+            recipeContainer.innerHTML = `
+                <h2>${recipe.scent_name}</h2>
+                <p>${recipe.description}</p>
+                <h3>분석</h3>
+                <p>개념: ${recipe.analysis.concept}</p>
+                <p>핵심 요소: ${recipe.analysis.key_elements.join(', ')}</p>
+                <p>감정: ${recipe.analysis.emotions.join(', ')}</p>
+                <h3>향 구성</h3>
+                <p>상층: ${recipe.top_notes.notes.join(', ')} (${recipe.top_notes.rationale})</p>
+                <p>중층: ${recipe.middle_notes.notes.join(', ')} (${recipe.middle_notes.rationale})</p>
+                <p>하층: ${recipe.base_notes.notes.join(', ')} (${recipe.base_notes.rationale})</p>
+                <p>강도: ${recipe.intensity} (1-10)</p>
+            `;
+        }
+
+        function saveToHistory() {
+            if (currentRecipe) {
+                history.unshift(currentRecipe);
+                if (history.length > config.maxHistory) {
+                    history.pop();
+                }
+                saveConfig();
+                saveHistory();
+                showNotification('레시피가 히스토리에 저장되었습니다!');
+            }
+        }
+
+        function loadConfig() {
+            const savedConfig = localStorage.getItem('aiPerfumerConfig');
+            if (savedConfig) {
+                try {
+                    config = JSON.parse(savedConfig);
+                } catch (e) {
+                    console.error('Failed to parse config:', e);
+                }
+            }
+        }
+
+        function saveConfig() {
+            localStorage.setItem('aiPerfumerConfig', JSON.stringify(config));
+        }
+
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('aiPerfumerHistory');
+            if (savedHistory) {
+                try {
+                    history = JSON.parse(savedHistory);
+                } catch (e) {
+                    console.error('Failed to parse history:', e);
+                }
+            }
+        }
+
+        function saveHistory() {
+            localStorage.setItem('aiPerfumerHistory', JSON.stringify(history));
+        }
+
+        function loadExampleScenes() {
+            const exampleScenes = [
+                "봄 바람이 부는 나무 숲 속에서 오래된 책을 읽는 날씨",
+                "모래사장에서 바다 위를 날아가는 새들을 바라보는 날씨",
+                "눈이 오는 오후 카페에서 커피 향기를 맡는 날씨",
+                "비가 오는 밤 도시 거리를 걷는 날씨",
+                "따뜻한 햇살이 비치는 오후 공원에서 피어난 꽃을 바라보는 날씨"
+            ];
+            const sceneInput = document.getElementById('sceneInput');
+            sceneInput.value = getRandom(exampleScenes, 1)[0];
+        }
+
+        function restoreDraft() {
+            const draft = localStorage.getItem('aiPerfumerDraft');
+            if (draft) {
+                try {
+                    currentRecipe = JSON.parse(draft);
+                    displayRecipe(currentRecipe);
+                    showNotification('자동 복원된 레시피가 표시됩니다.');
+                } catch (e) {
+                    console.error('Failed to parse draft:', e);
+                }
+            }
+        }
+
+        function saveDraft() {
+            if (currentRecipe) {
+                localStorage.setItem('aiPerfumerDraft', JSON.stringify(currentRecipe));
+            }
+        }
+
+        function setupTooltips() {
+            const tooltips = document.querySelectorAll('.tooltip');
+            tooltips.forEach(tooltip => {
+                tooltip.addEventListener('mouseenter', () => {
+                    tooltip.classList.add('active');
+                });
+                tooltip.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('active');
+                });
+            });
+        }
+    </script>
+</body>
+</html> 

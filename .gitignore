@@ -1,0 +1,48 @@
+# 대용량 데이터 파일들
+ai_perfume/data/processed/*.npy
+ai_perfume/models/*.pth
+ai_perfume/data/processed/*.pkl
+ai_perfume/data/datasets/fragrance_train.json
+ai_perfume/data/datasets/fragrance_materials_200k.json
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 데이터베이스
+*.db
+*.sqlite3
+
+# 로그 파일
+*.log
+
+# IDE 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# Claude 설정 파일
+.claude/

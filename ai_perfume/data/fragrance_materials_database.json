@@ -1,0 +1,279 @@
+{
+  "raw_materials": {
+    "essential_oils": {
+      "citrus": [
+        {
+          "name": "베르가못 오일",
+          "scientific_name": "Citrus bergamia",
+          "properties": {
+            "odor_profile": ["상쾌한", "시트러스", "스파이시"],
+            "volatility_rate": 9,
+            "solubility": {
+              "in_alcohol": "우수",
+              "in_oil": "우수",
+              "in_water": "불용"
+            },
+            "flash_point": "52°C",
+            "specific_gravity": "0.876-0.883",
+            "recommended_dilution": "2-5%"
+          },
+          "processing_methods": [
+            "압착법",
+            "수증기증류법"
+          ],
+          "safety_guidelines": {
+            "max_usage_level": "0.4%",
+            "skin_sensitivity": "중간",
+            "photosensitivity": "있음",
+            "restrictions": ["임산부 사용 주의"]
+          },
+          "storage": {
+            "temperature": "15-25°C",
+            "light_sensitivity": "높음",
+            "shelf_life": "12-18개월",
+            "container": "갈색 유리병"
+          }
+        }
+      ],
+      "floral": [
+        {
+          "name": "라벤더 오일",
+          "scientific_name": "Lavandula angustifolia",
+          "properties": {
+            "odor_profile": ["플로럴", "허브", "깨끗한"],
+            "volatility_rate": 6,
+            "solubility": {
+              "in_alcohol": "우수",
+              "in_oil": "우수",
+              "in_water": "불용"
+            },
+            "flash_point": "71°C",
+            "specific_gravity": "0.875-0.888",
+            "recommended_dilution": "1-4%"
+          },
+          "processing_methods": [
+            "수증기증류법"
+          ],
+          "safety_guidelines": {
+            "max_usage_level": "5%",
+            "skin_sensitivity": "낮음",
+            "photosensitivity": "없음",
+            "restrictions": []
+          },
+          "storage": {
+            "temperature": "15-25°C",
+            "light_sensitivity": "중간",
+            "shelf_life": "24-36개월",
+            "container": "갈색 유리병"
+          }
+        }
+      ]
+    },
+    "absolutes": [
+      {
+        "name": "장미 앱솔루트",
+        "scientific_name": "Rosa damascena",
+        "properties": {
+          "odor_profile": ["플로럴", "달콤한", "깊은"],
+          "volatility_rate": 4,
+          "solubility": {
+            "in_alcohol": "우수",
+            "in_oil": "부분용해",
+            "in_water": "불용"
+          },
+          "flash_point": "85°C",
+          "specific_gravity": "0.945-0.965",
+          "recommended_dilution": "0.5-2%"
+        },
+        "processing_methods": [
+          "용매추출법",
+          "초임계추출법"
+        ],
+        "safety_guidelines": {
+          "max_usage_level": "0.5%",
+          "skin_sensitivity": "중간",
+          "photosensitivity": "없음",
+          "restrictions": []
+        },
+        "storage": {
+          "temperature": "15-20°C",
+          "light_sensitivity": "높음",
+          "shelf_life": "24개월",
+          "container": "갈색 유리병"
+        }
+      }
+    ],
+    "synthetic_materials": [
+      {
+        "name": "바닐린",
+        "chemical_name": "4-Hydroxy-3-methoxybenzaldehyde",
+        "properties": {
+          "odor_profile": ["바닐라", "달콤한", "크리미"],
+          "volatility_rate": 3,
+          "solubility": {
+            "in_alcohol": "우수",
+            "in_oil": "약간",
+            "in_water": "약간"
+          },
+          "melting_point": "81-83°C",
+          "recommended_dilution": "0.1-2%"
+        },
+        "safety_guidelines": {
+          "max_usage_level": "0.5%",
+          "skin_sensitivity": "낮음",
+          "restrictions": []
+        },
+        "storage": {
+          "temperature": "20-25°C",
+          "humidity": "낮음",
+          "shelf_life": "36개월",
+          "container": "밀폐용기"
+        }
+      }
+    ]
+  },
+  "blending_guidelines": {
+    "dilution_ratios": {
+      "essential_oils": {
+        "skin_care": "1-3%",
+        "room_fragrance": "3-5%",
+        "soap_making": "2-4%"
+      },
+      "absolutes": {
+        "skin_care": "0.5-1%",
+        "room_fragrance": "1-2%",
+        "soap_making": "0.5-1.5%"
+      }
+    },
+    "carrier_materials": {
+      "oils": [
+        {
+          "name": "호호바 오일",
+          "properties": {
+            "stability": "매우 높음",
+            "absorption": "중간",
+            "shelf_life": "2-3년"
+          },
+          "recommended_ratio": "70-90%"
+        },
+        {
+          "name": "스위트 아몬드 오일",
+          "properties": {
+            "stability": "중간",
+            "absorption": "빠름",
+            "shelf_life": "1년"
+          },
+          "recommended_ratio": "60-80%"
+        }
+      ],
+      "alcohols": [
+        {
+          "name": "에탄올",
+          "concentration": "95-96%",
+          "properties": {
+            "evaporation_rate": "빠름",
+            "solubility": "우수"
+          },
+          "recommended_ratio": "60-90%"
+        }
+      ]
+    },
+    "compatibility_matrix": {
+      "citrus_oils": {
+        "compatible_with": ["플로럴", "우디", "스파이시"],
+        "avoid": ["강한 수지향"]
+      },
+      "floral_oils": {
+        "compatible_with": ["시트러스", "우디", "스파이시"],
+        "avoid": ["강한 약초향"]
+      }
+    }
+  },
+  "manufacturing_processes": {
+    "extraction_methods": {
+      "steam_distillation": {
+        "suitable_materials": ["허브류", "나무류", "뿌리류"],
+        "equipment_needed": [
+          "증류기",
+          "냉각기",
+          "분리기"
+        ],
+        "process_parameters": {
+          "temperature": "90-100°C",
+          "pressure": "대기압",
+          "duration": "1-6시간"
+        }
+      },
+      "cold_pressing": {
+        "suitable_materials": ["감귤류 과피"],
+        "equipment_needed": [
+          "압착기",
+          "여과장치"
+        ],
+        "process_parameters": {
+          "temperature": "실온",
+          "pressure": "기계적 압력",
+          "duration": "즉시"
+        }
+      }
+    },
+    "blending_methods": {
+      "direct_blending": {
+        "steps": [
+          "원료 계량",
+          "캐리어 준비",
+          "순차적 혼합",
+          "숙성"
+        ],
+        "equipment_needed": [
+          "정밀저울",
+          "유리비커",
+          "교반기",
+          "피펫"
+        ]
+      },
+      "dilution_blending": {
+        "steps": [
+          "원액 준비",
+          "희석액 준비",
+          "단계적 희석",
+          "균질화"
+        ],
+        "equipment_needed": [
+          "정밀저울",
+          "메스실린더",
+          "교반기",
+          "여과장치"
+        ]
+      }
+    }
+  },
+  "quality_control": {
+    "testing_methods": {
+      "physical_tests": [
+        "비중 측정",
+        "굴절률 측정",
+        "색상 평가",
+        "용해도 테스트"
+      ],
+      "chemical_tests": [
+        "GC-MS 분석",
+        "pH 측정",
+        "산가 측정"
+      ],
+      "stability_tests": [
+        "열안정성",
+        "광안정성",
+        "산화안정성"
+      ]
+    },
+    "specifications": {
+      "essential_oils": {
+        "appearance": "투명, 특유의 색상",
+        "odor": "특유의 향",
+        "solubility": "알코올에 가용",
+        "specific_gravity": "규격 범위 내"
+      }
+    }
+  }
+} 

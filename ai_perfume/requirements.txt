@@ -1,0 +1,35 @@
+torch>=2.8.0
+transformers>=4.55.4
+sqlalchemy>=2.0.43
+numpy>=2.2.6,<2.3
+scikit-learn>=1.7.1
+pandas>=2.3.2
+plotly>=6.3.0
+tqdm>=4.66.0
+# RAG 시스템을 위한 벡터 데이터베이스
+chromadb>=0.5.0
+sentence-transformers>=2.7.0
+# 한국어 LLM 및 고급 NLP
+openai>=1.52.0
+# 다중 모달 처리
+pillow>=10.0.0
+# 강화학습
+gymnasium>=0.29.0
+# 분자 구조 처리 (향료 화학 구조 분석용)
+rdkit>=2023.9.1
+# 고급 수치 연산
+faiss-cpu>=1.7.4
+
+# 웹 애플리케이션 (추가)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+python-multipart==0.0.6
+jinja2==3.1.2
+
+# 캐싱 및 성능 최적화
+redis==5.0.1
+diskcache==5.6.3
+
+# 모니터링
+structlog==23.2.0 
