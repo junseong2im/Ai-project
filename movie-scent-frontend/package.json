@@ -1,34 +1,3 @@
-{
-  "name": "movie-scent-ai-frontend",
-  "version": "1.0.0",
-  "description": "Movie Scent AI - Frontend Interface for Directors",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "14.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "chart.js": "^4.4.0",
-    "react-chartjs-2": "^5.2.0",
-    "lucide-react": "^0.294.0",
-    "tailwindcss": "^3.3.6",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32"
-  },
-  "devDependencies": {
-    "@types/node": "^20.9.0",
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
-    "eslint": "^8.54.0",
-    "eslint-config-next": "14.0.3",
-    "typescript": "^5.2.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:6d23686c6caccef483ebdfb22c6e89bb8f83f06e7d17cd2c8c756ea5217e4a9a
+size 837
