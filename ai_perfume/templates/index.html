@@ -119,19 +119,231 @@
             opacity: 0.6;
             font-style: italic;
         }
+
+        /* 모드 선택 버튼들 */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .mode-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* 비디오 업로드 영역 */
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #48dbfb;
+            background: rgba(72, 219, 251, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .upload-format {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* 비디오 미리보기 */
+        .video-preview {
+            margin-top: 20px;
+        }
+
+        /* 장면 세그먼트 */
+        .scene-segments {
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .segment-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #feca57;
+        }
+
+        .segment-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #48dbfb;
+        }
+
+        .segment-item.selected {
+            background: rgba(72, 219, 251, 0.2);
+            border-left-color: #48dbfb;
+            box-shadow: 0 0 10px rgba(72, 219, 251, 0.3);
+        }
+
+        .segment-time {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .segment-mood {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .segment-elements {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* 시간 범위 선택기 */
+        .time-range-selector {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .time-range-selector input {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            width: 80px;
+        }
+
+        .time-range-selector button {
+            padding: 10px 20px;
+            background: rgba(72, 219, 251, 0.3);
+            border: 2px solid #48dbfb;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-range-selector button:hover {
+            background: rgba(72, 219, 251, 0.5);
+        }
+
+        /* 진행 상태 */
+        .upload-progress {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48dbfb, #feca57);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="title">Movie Scent AI</h1>
         
-        <div class="input-container">
+        <!-- 입력 모드 선택 -->
+        <div class="mode-selector">
+            <button id="textModeBtn" class="mode-btn active">📝 텍스트 입력</button>
+            <button id="videoModeBtn" class="mode-btn">🎬 비디오 업로드</button>
+        </div>
+        
+        <!-- 텍스트 입력 모드 -->
+        <div class="input-container" id="textInputMode">
             <input 
                 type="text" 
                 id="sceneInput" 
                 placeholder="영화 장면을 설명해주세요... (예: 로맨틱한 해변가 석양 키스신)"
                 autocomplete="off"
             >
+        </div>
+        
+        <!-- 비디오 업로드 모드 -->
+        <div class="input-container" id="videoInputMode" style="display: none;">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🎬</div>
+                <div class="upload-text">비디오 파일을 드래그하거나 클릭하여 업로드</div>
+                <div class="upload-format">MP4, AVI, MOV, MKV 지원</div>
+                <input type="file" id="videoInput" accept=".mp4,.avi,.mov,.mkv" hidden>
+            </div>
+            
+            <!-- 비디오 플레이어 및 장면 선택 -->
+            <div class="video-preview" id="videoPreview" style="display: none;">
+                <video id="videoPlayer" controls style="width: 100%; max-height: 300px; border-radius: 10px;"></video>
+                
+                <!-- 장면 세그먼트 선택 -->
+                <div class="scene-segments" id="sceneSegments"></div>
+                
+                <!-- 시간 범위 수동 선택 -->
+                <div class="time-range-selector">
+                    <label>장면 선택 (초):</label>
+                    <input type="number" id="startTime" placeholder="시작" min="0" step="0.1">
+                    <span>~</span>
+                    <input type="number" id="endTime" placeholder="끝" min="0" step="0.1">
+                    <button id="analyzeTimeRange">이 구간 분석</button>
+                </div>
+            </div>
         </div>
         
         <div class="scent-display" id="scentDisplay">
@@ -145,8 +357,25 @@
         const sceneInput = document.getElementById('sceneInput');
         const scentDisplay = document.getElementById('scentDisplay');
         const loading = document.getElementById('loading');
+        
+        // 비디오 관련 요소들
+        const textModeBtn = document.getElementById('textModeBtn');
+        const videoModeBtn = document.getElementById('videoModeBtn');
+        const textInputMode = document.getElementById('textInputMode');
+        const videoInputMode = document.getElementById('videoInputMode');
+        const uploadArea = document.getElementById('uploadArea');
+        const videoInput = document.getElementById('videoInput');
+        const videoPreview = document.getElementById('videoPreview');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const sceneSegments = document.getElementById('sceneSegments');
+        const startTime = document.getElementById('startTime');
+        const endTime = document.getElementById('endTime');
+        const analyzeTimeRange = document.getElementById('analyzeTimeRange');
 
         let debounceTimer;
+        let currentVideoFile = null;
+        let uploadedVideoPath = null;
+        let videoAnalysisData = null;
 
         sceneInput.addEventListener('input', function() {
             clearTimeout(debounceTimer);
@@ -357,6 +586,325 @@
                 }, scents.length * 200 + 1200);
             }
         }
+
+        // 모드 전환 기능
+        textModeBtn.addEventListener('click', function() {
+            switchToTextMode();
+        });
+
+        videoModeBtn.addEventListener('click', function() {
+            switchToVideoMode();
+        });
+
+        function switchToTextMode() {
+            textModeBtn.classList.add('active');
+            videoModeBtn.classList.remove('active');
+            textInputMode.style.display = 'block';
+            videoInputMode.style.display = 'none';
+            scentDisplay.innerHTML = '';
+            sceneInput.focus();
+        }
+
+        function switchToVideoMode() {
+            videoModeBtn.classList.add('active');
+            textModeBtn.classList.remove('active');
+            videoInputMode.style.display = 'block';
+            textInputMode.style.display = 'none';
+            scentDisplay.innerHTML = '';
+        }
+
+        // 비디오 업로드 기능
+        uploadArea.addEventListener('click', function() {
+            videoInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleVideoFile(files[0]);
+            }
+        });
+
+        videoInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleVideoFile(e.target.files[0]);
+            }
+        });
+
+        async function handleVideoFile(file) {
+            const validTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/quicktime', 'video/x-msvideo'];
+            
+            if (!validTypes.includes(file.type)) {
+                alert('지원하지 않는 비디오 형식입니다. MP4, AVI, MOV 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            if (file.size > 100 * 1024 * 1024) { // 100MB 제한
+                alert('파일 크기가 너무 큽니다. 100MB 이하의 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            currentVideoFile = file;
+            
+            // 비디오 미리보기 설정
+            const videoUrl = URL.createObjectURL(file);
+            videoPlayer.src = videoUrl;
+            videoPreview.style.display = 'block';
+
+            // 업로드 진행 상태 표시
+            showUploadProgress();
+
+            try {
+                // 서버로 비디오 업로드 및 분석
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/video_upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.detail || '비디오 분석에 실패했습니다');
+                }
+
+                videoAnalysisData = result;
+                displaySceneSegments(result.scene_segments);
+                hideUploadProgress();
+                
+                // 비디오 메타데이터 업데이트
+                if (result.total_duration) {
+                    endTime.max = result.total_duration;
+                    endTime.value = Math.min(10, result.total_duration);
+                }
+
+            } catch (error) {
+                console.error('비디오 업로드 실패:', error);
+                alert('비디오 업로드에 실패했습니다: ' + error.message);
+                hideUploadProgress();
+            }
+        }
+
+        function showUploadProgress() {
+            const progressHTML = `
+                <div class="upload-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text">비디오를 분석하고 있습니다...</div>
+                </div>
+            `;
+            scentDisplay.innerHTML = progressHTML;
+            
+            // 가상 진행률 애니메이션
+            const progressFill = scentDisplay.querySelector('.progress-fill');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 500);
+            
+            // 정리를 위해 interval ID 저장
+            scentDisplay._progressInterval = interval;
+        }
+
+        function hideUploadProgress() {
+            if (scentDisplay._progressInterval) {
+                clearInterval(scentDisplay._progressInterval);
+                delete scentDisplay._progressInterval;
+            }
+            // progress는 자동으로 장면 표시로 대체됨
+        }
+
+        function displaySceneSegments(segments) {
+            if (!segments || segments.length === 0) {
+                sceneSegments.innerHTML = '<div class="segment-item">분석할 장면을 찾지 못했습니다.</div>';
+                return;
+            }
+
+            sceneSegments.innerHTML = '';
+            
+            segments.forEach((segment, index) => {
+                const segmentDiv = document.createElement('div');
+                segmentDiv.className = 'segment-item';
+                segmentDiv.dataset.segmentId = segment.segment_id;
+                
+                const duration = (segment.end_time - segment.start_time).toFixed(1);
+                const moodEmoji = getMoodEmoji(segment.primary_mood);
+                const elementsText = segment.dominant_elements.slice(0, 3).join(', ');
+                
+                segmentDiv.innerHTML = `
+                    <div class="segment-time">${formatTime(segment.start_time)} - ${formatTime(segment.end_time)} (${duration}초)</div>
+                    <div class="segment-mood">${moodEmoji} ${segment.primary_mood}</div>
+                    <div class="segment-elements">${elementsText}</div>
+                    <div class="segment-preview">향: ${segment.preview_scent.primary_notes.join(', ')}</div>
+                `;
+                
+                segmentDiv.addEventListener('click', function() {
+                    // 다른 선택 해제
+                    document.querySelectorAll('.segment-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    
+                    // 현재 선택
+                    this.classList.add('selected');
+                    
+                    // 비디오 플레이어 시간 이동
+                    videoPlayer.currentTime = segment.start_time;
+                    
+                    // 시간 범위 입력 필드 업데이트
+                    startTime.value = segment.start_time.toFixed(1);
+                    endTime.value = segment.end_time.toFixed(1);
+                    
+                    // 해당 장면의 향 분석 결과 표시
+                    analyzeSelectedSegment(segment);
+                });
+                
+                sceneSegments.appendChild(segmentDiv);
+            });
+        }
+
+        function getMoodEmoji(mood) {
+            const moodEmojis = {
+                'romantic': '💕',
+                'energetic': '⚡',
+                'calm': '🌊',
+                'mysterious': '🌙',
+                'fresh': '🌿',
+                'dramatic': '🎭',
+                'happy': '😊',
+                'sad': '😢',
+                'angry': '😠',
+                'fear': '😨'
+            };
+            return moodEmojis[mood] || '🎬';
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        async function analyzeSelectedSegment(segment) {
+            loading.style.display = 'block';
+            scentDisplay.innerHTML = '';
+            scentDisplay.appendChild(loading);
+
+            try {
+                // 선택된 세그먼트 정보로 향 분석 요청
+                const response = await fetch('/api/video_scene_select', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        video_path: uploadedVideoPath || 'current_uploaded_video',
+                        start_time: segment.start_time,
+                        end_time: segment.end_time,
+                        max_frames: 20
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayScents(result.recommended_scent);
+                } else {
+                    throw new Error(result.detail || '장면 분석에 실패했습니다');
+                }
+
+            } catch (error) {
+                console.error('장면 분석 실패:', error);
+                scentDisplay.innerHTML = '<div class="scent-item show" style="border-color: #ff6b6b;">장면 분석에 실패했습니다: ' + error.message + '</div>';
+            }
+
+            loading.style.display = 'none';
+        }
+
+        // 시간 범위 수동 분석
+        analyzeTimeRange.addEventListener('click', async function() {
+            const start = parseFloat(startTime.value) || 0;
+            const end = parseFloat(endTime.value) || 10;
+            
+            if (start >= end) {
+                alert('시작 시간은 끝 시간보다 작아야 합니다.');
+                return;
+            }
+            
+            if (!videoAnalysisData) {
+                alert('먼저 비디오를 업로드하고 분석해야 합니다.');
+                return;
+            }
+
+            loading.style.display = 'block';
+            scentDisplay.innerHTML = '';
+            scentDisplay.appendChild(loading);
+
+            try {
+                const response = await fetch('/api/video_scene_select', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        video_path: uploadedVideoPath || 'current_uploaded_video',
+                        start_time: start,
+                        end_time: end,
+                        max_frames: 25
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayScents(result.recommended_scent);
+                    
+                    // 분석 정보 추가 표시
+                    setTimeout(() => {
+                        const infoDiv = document.createElement('div');
+                        infoDiv.className = 'scent-item show';
+                        infoDiv.style.marginTop = '20px';
+                        infoDiv.style.opacity = '0.8';
+                        infoDiv.style.borderColor = '#48dbfb';
+                        
+                        infoDiv.innerHTML = `
+                            <div class="scent-name">🎬 선택된 장면 정보</div>
+                            <div>시간 범위: ${start}초 - ${end}초 (${(end-start).toFixed(1)}초)</div>
+                            <div>장면 무드: ${result.scene_mood}</div>
+                            <div>시각 요소: ${result.visual_elements.join(', ')}</div>
+                            <div>분석 신뢰도: ${(result.analysis_confidence * 100).toFixed(1)}%</div>
+                        `;
+                        
+                        scentDisplay.appendChild(infoDiv);
+                    }, 1000);
+                    
+                } else {
+                    throw new Error(result.detail || '시간 범위 분석에 실패했습니다');
+                }
+
+            } catch (error) {
+                console.error('시간 범위 분석 실패:', error);
+                scentDisplay.innerHTML = '<div class="scent-item show" style="border-color: #ff6b6b;">시간 범위 분석에 실패했습니다: ' + error.message + '</div>';
+            }
+
+            loading.style.display = 'none';
+        });
 
         // 초기 포커스
         sceneInput.focus();

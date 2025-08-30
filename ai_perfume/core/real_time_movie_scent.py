@@ -23,6 +23,15 @@ except ImportError:
         logger.warning("MovieScentAI를 임포트할 수 없습니다. 규칙 기반 시스템만 사용됩니다.")
         MovieScentAI = None
 
+# 비디오 분석 시스템 임포트
+try:
+    from .video_scent_analyzer import VideoScentAnalyzer, analyze_video_for_scent
+    from .deep_learning_integration import get_multimodal_predictor
+except ImportError:
+    VideoScentAnalyzer = None
+    analyze_video_for_scent = None
+    get_multimodal_predictor = None
+
 logger = logging.getLogger(__name__)
 
 class RealTimeMovieScentRecommender:
@@ -38,16 +47,26 @@ class RealTimeMovieScentRecommender:
         # 실제 딥러닝 AI 모델
         self.movie_ai = None
         
+        # 비디오 분석 시스템
+        self.video_analyzer = None
+        self.multimodal_predictor = None
+        
         # 실시간 캐시
         self.scene_cache = {}
         self.recommendation_cache = {}
+        self.video_cache = {}  # 비디오 분석 결과 캐시
         
         # 성능 통계
         self.stats = {
             'total_recommendations': 0,
             'cache_hits': 0,
+            'video_analyses': 0,
+            'multimodal_predictions': 0,
             'average_response_time': 0.0
         }
+        
+        # 비디오 시스템 초기화
+        self._initialize_video_systems()
         
         # 향수 브랜드 데이터베이스
         self.perfume_database = {
@@ -523,16 +542,260 @@ class RealTimeMovieScentRecommender:
         current_avg = self.stats['average_response_time']
         self.stats['average_response_time'] = ((current_avg * (total - 1)) + response_time) / total
     
+    def _initialize_video_systems(self):
+        """비디오 분석 시스템 초기화"""
+        try:
+            if VideoScentAnalyzer:
+                self.video_analyzer = VideoScentAnalyzer()
+                logger.info("✅ Video analyzer initialized in RealTime system")
+        except Exception as e:
+            logger.warning(f"⚠️ Video analyzer initialization failed: {e}")
+            
+        try:
+            if get_multimodal_predictor:
+                self.multimodal_predictor = get_multimodal_predictor()
+                logger.info("✅ Multimodal predictor initialized in RealTime system")
+        except Exception as e:
+            logger.warning(f"⚠️ Multimodal predictor initialization failed: {e}")
+    
+    def recommend_for_video_scene(self, video_path: str, 
+                                 text_description: str = None,
+                                 timerange: tuple = None,
+                                 use_cache: bool = True) -> Dict[str, Any]:
+        """비디오 장면 기반 실시간 향수 추천"""
+        start_time = time.time()
+        
+        # 캐시 키 생성
+        cache_key = f"video_{video_path}_{timerange}_{hash(text_description or '')}"
+        
+        if use_cache and cache_key in self.video_cache:
+            self.stats['cache_hits'] += 1
+            result = self.video_cache[cache_key].copy()
+            result['meta']['from_cache'] = True
+            result['meta']['response_time'] = time.time() - start_time
+            return result
+        
+        try:
+            # 멀티모달 예측 사용
+            if self.multimodal_predictor:
+                prediction_result = self.multimodal_predictor.predict_from_video_and_text(
+                    video_path=video_path,
+                    text_description=text_description,
+                    selected_timerange=timerange
+                )
+                
+                if prediction_result.get('success'):
+                    self.stats['multimodal_predictions'] += 1
+                    
+                    # 결과를 표준 형식으로 변환
+                    combined_pred = prediction_result['combined_prediction']
+                    
+                    result = {
+                        'scene_analysis': {
+                            'video_path': video_path,
+                            'text_description': text_description or 'Video-only analysis',
+                            'timerange': timerange,
+                            'visual_mood': combined_pred.get('visual_mood', 'neutral'),
+                            'text_emotions': combined_pred.get('text_emotions', {}),
+                            'analysis_mode': combined_pred.get('analysis_mode', 'video_only')
+                        },
+                        'scent_profile': {
+                            'intensity': combined_pred.get('intensity', 5.0),
+                            'longevity': 7.0,  # 기본값
+                            'projection': 6.0,  # 기본값
+                            'confidence': combined_pred.get('confidence', 0.5),
+                            'primary_notes': combined_pred.get('recommended_notes', {}).get('top_notes', []),
+                            'middle_notes': combined_pred.get('recommended_notes', {}).get('middle_notes', []),
+                            'base_notes': combined_pred.get('recommended_notes', {}).get('base_notes', [])
+                        },
+                        'product_recommendations': self._generate_video_based_products(combined_pred),
+                        'meta': {
+                            'video_enhanced': True,
+                            'multimodal': text_description is not None,
+                            'confidence': combined_pred.get('confidence', 0.5),
+                            'weights': combined_pred.get('weights', {}),
+                            'source_confidences': combined_pred.get('source_confidences', {}),
+                            'response_time': 0.0,  # 업데이트 예정
+                            'from_cache': False
+                        }
+                    }
+                    
+                else:
+                    # 멀티모달 실패시 비디오만 사용
+                    result = self._fallback_video_analysis(video_path, timerange)
+            
+            else:
+                # 멀티모달 예측기 없음 - 단순 비디오 분석
+                result = self._fallback_video_analysis(video_path, timerange)
+            
+        except Exception as e:
+            logger.error(f"Video scene recommendation failed: {e}")
+            result = self._video_emergency_fallback(video_path, text_description)
+        
+        # 처리 시간 및 캐싱
+        processing_time = time.time() - start_time
+        result['meta']['response_time'] = processing_time
+        
+        self.stats['total_recommendations'] += 1
+        self._update_stats(processing_time)
+        
+        if use_cache:
+            self.video_cache[cache_key] = result.copy()
+        
+        logger.info(f"Video scene recommendation completed in {processing_time:.3f}s")
+        return result
+    
+    def _fallback_video_analysis(self, video_path: str, timerange: tuple = None) -> Dict[str, Any]:
+        """비디오 분석기만 사용한 폴백"""
+        if not self.video_analyzer:
+            return self._video_emergency_fallback(video_path, None)
+        
+        try:
+            if timerange:
+                # 특정 구간 분석
+                analysis_result = analyze_video_for_scent(video_path, max_frames=20)
+                
+                if analysis_result and analysis_result.get('success'):
+                    # 시간 범위에 맞는 세그먼트 찾기
+                    start_time, end_time = timerange
+                    target_segment = None
+                    
+                    for segment in analysis_result.get('scene_segments', []):
+                        seg_start = segment.get('start_time', 0)
+                        seg_end = segment.get('end_time', 0)
+                        
+                        if (seg_start <= start_time <= seg_end or 
+                            seg_start <= end_time <= seg_end):
+                            target_segment = segment
+                            break
+                    
+                    if target_segment:
+                        scent_data = target_segment.get('scent', {})
+                    else:
+                        scent_data = analysis_result.get('overall_scent', {})
+                else:
+                    scent_data = {}
+            
+            else:
+                # 전체 비디오 분석
+                analysis_result = analyze_video_for_scent(video_path, max_frames=30)
+                scent_data = analysis_result.get('overall_scent', {}) if analysis_result else {}
+            
+            self.stats['video_analyses'] += 1
+            
+            # 표준 형식으로 변환
+            scent_profile = scent_data.get('scent_profile', {})
+            scene_analysis = scent_data.get('scene_analysis', {})
+            
+            return {
+                'scene_analysis': {
+                    'video_path': video_path,
+                    'primary_mood': scene_analysis.get('primary_mood', 'neutral'),
+                    'dominant_elements': scene_analysis.get('dominant_elements', []),
+                    'analyzed_frames': scene_analysis.get('analyzed_frames', 0)
+                },
+                'scent_profile': {
+                    'intensity': scent_profile.get('intensity', 5.0),
+                    'longevity': scent_profile.get('longevity', 6.0),
+                    'projection': scent_profile.get('projection', 5.0),
+                    'confidence': scent_data.get('confidence', 0.6),
+                    'primary_notes': scent_profile.get('primary_notes', []),
+                    'middle_notes': scent_profile.get('secondary_notes', [])[:3],
+                    'base_notes': scent_profile.get('secondary_notes', [])[3:6] if len(scent_profile.get('secondary_notes', [])) > 3 else ['musk']
+                },
+                'product_recommendations': self._generate_video_based_products(scent_data),
+                'meta': {
+                    'video_only': True,
+                    'confidence': scent_data.get('confidence', 0.6),
+                    'response_time': 0.0,
+                    'from_cache': False
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Fallback video analysis failed: {e}")
+            return self._video_emergency_fallback(video_path, None)
+    
+    def _generate_video_based_products(self, prediction_data: Dict) -> Dict[str, List[Dict]]:
+        """비디오 분석 기반 제품 추천"""
+        
+        # 무드 또는 시각적 요소에서 카테고리 추론
+        visual_mood = prediction_data.get('visual_mood', 'neutral')
+        visual_elements = prediction_data.get('visual_elements', [])
+        
+        # 무드별 제품 매핑
+        mood_categories = {
+            'romantic': 'romantic',
+            'calm': 'fresh', 
+            'energetic': 'citrus',
+            'mysterious': 'oriental',
+            'dramatic': 'woody',
+            'fresh': 'fresh'
+        }
+        
+        category = mood_categories.get(visual_mood, 'floral')
+        
+        # 시각적 요소 기반 조정
+        if any(elem in visual_elements for elem in ['ocean', 'water', 'blue']):
+            category = 'fresh'
+        elif any(elem in visual_elements for elem in ['night', 'dark', 'black']):
+            category = 'oriental'
+        elif any(elem in visual_elements for elem in ['nature', 'green', 'forest']):
+            category = 'woody'
+        
+        # 기존 제품 생성 로직 재사용
+        return self._generate_product_recommendations(category, visual_mood)
+    
+    def _video_emergency_fallback(self, video_path: str, text_description: str = None) -> Dict[str, Any]:
+        """비디오 분석 비상 폴백"""
+        return {
+            'scene_analysis': {
+                'video_path': video_path,
+                'text_description': text_description or 'Emergency mode',
+                'analysis_mode': 'emergency'
+            },
+            'scent_profile': {
+                'intensity': 5.0,
+                'longevity': 6.0, 
+                'projection': 5.0,
+                'confidence': 0.3,
+                'primary_notes': ['bergamot', 'lemon'],
+                'middle_notes': ['rose', 'jasmine'],
+                'base_notes': ['musk', 'cedar']
+            },
+            'product_recommendations': {
+                'top_picks': [
+                    {'brand': 'Universal', 'name': 'Video Scene Essence', 'category': 'universal'},
+                    {'brand': 'Cinema', 'name': 'Movie Magic', 'category': 'cinematic'}
+                ],
+                'alternatives': [],
+                'budget_options': [],
+                'niche_selections': []
+            },
+            'meta': {
+                'emergency_mode': True,
+                'video_path': video_path,
+                'confidence': 0.3,
+                'response_time': 0.0,
+                'from_cache': False
+            }
+        }
+    
     def get_performance_stats(self) -> Dict[str, Any]:
         """성능 통계 반환"""
         cache_hit_rate = (self.stats['cache_hits'] / max(1, self.stats['total_recommendations'])) * 100
         
         return {
             'total_recommendations': self.stats['total_recommendations'],
+            'video_analyses': self.stats['video_analyses'],
+            'multimodal_predictions': self.stats['multimodal_predictions'],
             'cache_hit_rate': f"{cache_hit_rate:.1f}%",
             'average_response_time': f"{self.stats['average_response_time']:.3f}초",
             'cache_size': len(self.recommendation_cache),
-            'model_loaded': self.model is not None
+            'video_cache_size': len(self.video_cache),
+            'model_loaded': self.model is not None,
+            'video_analyzer_available': self.video_analyzer is not None,
+            'multimodal_predictor_available': self.multimodal_predictor is not None
         }
 
 def demo_real_time_recommendations():

@@ -85,7 +85,8 @@ class MovieCapsuleFormulator:
         try:
             self.trained_predictor = get_trained_predictor()
             self.ml_available = self.trained_predictor.is_loaded
-        except:
+        except Exception as e:
+            logger.warning(f"Trained predictor 초기화 실패: {e}")
             self.trained_predictor = None
             self.ml_available = False
     
@@ -168,8 +169,9 @@ class MovieCapsuleFormulator:
                 ml_result = self.trained_predictor.predict_scene_fragrance(scene_description)
                 if ml_result["success"]:
                     ml_predictions = ml_result["predictions"]
-            except:
-                pass
+            except Exception as e:
+                logger.debug(f"ML 예측 실패: {e}")
+                ml_predictions = None
         
         # 3. 기본 향료 선택
         fragrance_profile = self.scene_fragrance_map.get(primary_emotion, self.scene_fragrance_map["peaceful"])

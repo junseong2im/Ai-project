@@ -4,7 +4,7 @@
 FastAPI + React-like interface
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,6 +19,21 @@ import logging
 import asyncio
 from pathlib import Path
 
+# 환경 설정 로드
+from config.environment import get_config
+config = get_config()
+
+# 로깅 설정
+logging.basicConfig(
+    level=getattr(logging, config.log_level),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        *([logging.FileHandler(config.log_file_path)] if config.log_file_path else [])
+    ]
+)
+logger = logging.getLogger(__name__)
+
 # 우리 시스템 임포트
 try:
     from core.optimized_data_manager import get_data_manager, SceneData
@@ -26,6 +41,8 @@ try:
     from core.deep_learning_integration import DeepLearningPerfumePredictor, get_trained_predictor
     from core.scent_simulator import ScentSimulator
     from core.standalone_scent_simulator import StandaloneScentSimulator
+    from core.video_scent_analyzer import VideoScentAnalyzer, analyze_video_for_scent
+    from core.deep_learning_integration import get_multimodal_predictor
 except ImportError as e:
     logger.warning(f"Some modules could not be imported: {e}")
     # Vercel에서는 독립형 시뮬레이터만 사용
@@ -40,10 +57,6 @@ except ImportError as e:
     DeepLearningPerfumePredictor = None
     ScentSimulator = None
 
-# 로깅 설정
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 # FastAPI 앱 생성
 app = FastAPI(
     title="영화 향수 AI API",
@@ -51,10 +64,10 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# CORS 설정 (프론트엔드 연동용)
+# CORS 설정 (환경변수 기반)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=config.allow_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -69,6 +82,8 @@ recommender = None
 dl_predictor = None
 trained_predictor = None
 scent_simulator = None
+video_analyzer = None
+multimodal_predictor = None
 
 # 요청/응답 모델들
 class SceneRequest(BaseModel):
@@ -105,7 +120,7 @@ app_instance = app
 @app.on_event("startup")
 async def startup_event():
     """앱 시작시 시스템 초기화"""
-    global data_manager, recommender, dl_predictor, trained_predictor, scent_simulator
+    global data_manager, recommender, dl_predictor, trained_predictor, scent_simulator, video_analyzer, multimodal_predictor
     
     logger.info("Movie Scent AI System Starting...")
     
@@ -120,6 +135,22 @@ async def startup_event():
         else:
             scent_simulator = None
             logger.warning("No scent simulator available")
+        
+        # 1-1. 비디오 분석기 초기화
+        try:
+            video_analyzer = VideoScentAnalyzer()
+            logger.info("✅ Video scent analyzer initialized")
+        except Exception as video_error:
+            logger.warning(f"⚠️ Video analyzer initialization failed: {video_error}")
+            video_analyzer = None
+            
+        # 1-2. 멀티모달 예측기 초기화
+        try:
+            multimodal_predictor = get_multimodal_predictor()
+            logger.info("🚀 Multimodal predictor initialized")
+        except Exception as multimodal_error:
+            logger.warning(f"⚠️ Multimodal predictor initialization failed: {multimodal_error}")
+            multimodal_predictor = None
         
         # 2. 전체 AI 시스템 초기화 시도 (로컬 환경에서만)
         try:
@@ -311,7 +342,7 @@ async def recommend_scent(request: dict):
                         })
                 
                 # 조합 공식 생성
-                mixing_formula = self._generate_raw_material_formula(raw_materials, scent_profile)
+                mixing_formula = _generate_raw_material_formula(raw_materials, scent_profile)
                 
                 return {
                     "raw_materials": raw_materials,
@@ -591,6 +622,325 @@ async def create_movie_capsule(request: dict):
         logger.error(f"캡슐 제조 공식 생성 실패: {e}")
         raise HTTPException(status_code=500, detail=f"캡슐 제조 실패: {str(e)}")
 
+@app.post("/api/video_upload")
+async def upload_video_for_analysis(file: UploadFile = File(...), request: Request = None):
+    """🎬 비디오 파일 업로드 및 장면 분석 API (보안 강화됨)"""
+    if not video_analyzer:
+        raise HTTPException(status_code=503, detail="비디오 분석기가 초기화되지 않았습니다")
+    
+    # 파일 검증을 위해 내용 읽기
+    try:
+        contents = await file.read()
+    except Exception as e:
+        logger.error(f"파일 읽기 실패: {e}")
+        raise HTTPException(status_code=400, detail="파일을 읽을 수 없습니다")
+    
+    # 보안 검증 모듈 import
+    try:
+        from utils.file_security import (
+            comprehensive_video_validation, 
+            create_secure_temp_path,
+            check_suspicious_patterns,
+            log_upload_attempt
+        )
+    except ImportError:
+        logger.warning("보안 모듈을 찾을 수 없습니다. 기본 검증만 사용합니다.")
+        # 기본 검증
+        if not file.filename.lower().endswith(('.mp4', '.avi', '.mov', '.mkv')):
+            raise HTTPException(status_code=400, detail="지원하지 않는 비디오 형식입니다")
+        if len(contents) > config.max_file_size_mb * 1024 * 1024:
+            raise HTTPException(status_code=400, detail=f"파일이 너무 큽니다 (최대 {config.max_file_size_mb}MB)")
+    else:
+        # 클라이언트 IP 추출
+        client_ip = request.client.host if request else "unknown"
+        
+        # 종합 보안 검증
+        is_valid, validation_message = comprehensive_video_validation(file.filename, contents)
+        if not is_valid:
+            log_upload_attempt(file.filename, len(contents), client_ip, success=False)
+            raise HTTPException(status_code=400, detail=validation_message)
+        
+        # 의심스러운 패턴 검사
+        is_clean, pattern_message = check_suspicious_patterns(contents)
+        if not is_clean:
+            log_upload_attempt(file.filename, len(contents), client_ip, success=False)
+            raise HTTPException(status_code=400, detail=f"보안 검사 실패: {pattern_message}")
+        
+        # 성공적인 업로드 로깅
+        log_upload_attempt(file.filename, len(contents), client_ip, success=True)
+        logger.info(f"보안 검증 완료: {file.filename} - {validation_message}")
+    
+    try:
+        # 보안 강화된 임시 파일 생성
+        if 'create_secure_temp_path' in locals():
+            temp_path = create_secure_temp_path(file.filename)
+            with open(temp_path, 'wb') as temp_file:
+                temp_file.write(contents)
+            temp_video_path = str(temp_path)
+        else:
+            # 폴백: 기본 임시 파일 생성
+            import tempfile
+            import os
+            with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as temp_file:
+                temp_file.write(contents)
+                temp_video_path = temp_file.name
+        
+        logger.info(f"보안 검증된 비디오 업로드 완료: {file.filename} ({len(contents)} bytes)")
+        
+        # 비디오 분석 실행
+        start_time = time.time()
+        analysis_result = analyze_video_for_scent(temp_video_path, max_frames=config.video_analysis_max_frames)
+        processing_time = time.time() - start_time
+        
+        # 임시 파일 정리
+        os.unlink(temp_video_path)
+        
+        if not analysis_result["success"]:
+            raise HTTPException(status_code=500, detail=f"비디오 분석 실패: {analysis_result['error']}")
+        
+        # 장면 세그먼트를 UI 친화적 형태로 변환
+        scene_options = []
+        for i, segment in enumerate(analysis_result["scene_segments"]):
+            scene_options.append({
+                "segment_id": i,
+                "start_time": segment["start_time"],
+                "end_time": segment["end_time"],
+                "duration": segment["end_time"] - segment["start_time"],
+                "primary_mood": segment["summary"]["primary_mood"],
+                "dominant_elements": segment["summary"]["dominant_elements"],
+                "brightness_level": segment["summary"]["average_brightness"],
+                "preview_scent": {
+                    "primary_notes": segment["scent"]["scent_profile"]["primary_notes"][:3],
+                    "mood": segment["scent"]["scent_profile"]["mood"],
+                    "intensity": segment["scent"]["scent_profile"]["intensity"]
+                }
+            })
+        
+        return {
+            "success": True,
+            "filename": file.filename,
+            "total_duration": scene_options[-1]["end_time"] if scene_options else 0,
+            "frames_analyzed": analysis_result["total_frames_analyzed"],
+            "scene_segments": scene_options,
+            "overall_mood": analysis_result["overall_scent"]["scene_analysis"]["primary_mood"],
+            "processing_time": processing_time,
+            "analysis_method": "computer_vision"
+        }
+        
+    except Exception as e:
+        # 임시 파일 정리 (에러 시에도)
+        try:
+            if 'temp_video_path' in locals():
+                os.unlink(temp_video_path)
+        except:
+            pass
+        
+        logger.error(f"비디오 분석 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"비디오 처리 중 오류 발생: {str(e)}")
+
+@app.post("/api/video_scene_select")
+async def select_video_scene_for_scent(request: dict):
+    """🎯 특정 비디오 장면 선택 및 향 생성 API"""
+    try:
+        video_file_path = request.get("video_path", "")
+        start_time = request.get("start_time", 0.0)
+        end_time = request.get("end_time", 10.0)
+        max_frames = request.get("max_frames", 20)
+        
+        if not video_file_path:
+            raise HTTPException(status_code=400, detail="비디오 파일 경로가 필요합니다")
+        
+        if not video_analyzer:
+            raise HTTPException(status_code=503, detail="비디오 분석기가 초기화되지 않았습니다")
+        
+        # 특정 구간만 분석하는 기능 (추후 구현 가능)
+        # 현재는 전체 비디오 분석 후 해당 구간 필터링
+        logger.info(f"비디오 구간 분석: {start_time}s - {end_time}s")
+        
+        analysis_result = analyze_video_for_scent(video_file_path, max_frames)
+        
+        if not analysis_result["success"]:
+            raise HTTPException(status_code=500, detail=f"비디오 분석 실패: {analysis_result['error']}")
+        
+        # 해당 시간 구간의 세그먼트 찾기
+        selected_segment = None
+        for segment in analysis_result["scene_segments"]:
+            if (segment["start_time"] <= start_time <= segment["end_time"] or
+                segment["start_time"] <= end_time <= segment["end_time"] or
+                (start_time <= segment["start_time"] and end_time >= segment["end_time"])):
+                selected_segment = segment
+                break
+        
+        if not selected_segment:
+            # 가장 가까운 세그먼트 사용
+            selected_segment = min(analysis_result["scene_segments"], 
+                                 key=lambda s: abs(s["start_time"] - start_time))
+        
+        return {
+            "success": True,
+            "selected_timerange": {"start": start_time, "end": end_time},
+            "matched_segment": {
+                "start_time": selected_segment["start_time"],
+                "end_time": selected_segment["end_time"],
+                "scene_summary": selected_segment["summary"]
+            },
+            "recommended_scent": selected_segment["scent"],
+            "analysis_confidence": selected_segment["scent"]["confidence"],
+            "scene_mood": selected_segment["summary"]["primary_mood"],
+            "visual_elements": selected_segment["summary"]["dominant_elements"]
+        }
+        
+    except Exception as e:
+        logger.error(f"비디오 장면 선택 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"장면 선택 처리 중 오류: {str(e)}")
+
+@app.post("/api/multimodal_prediction")
+async def multimodal_scent_prediction(request: dict):
+    """🎬📝 멀티모달 향수 예측 API (텍스트 + 비디오)"""
+    
+    if not multimodal_predictor:
+        raise HTTPException(status_code=503, detail="멀티모달 예측기가 초기화되지 않았습니다")
+    
+    try:
+        video_path = request.get("video_path")
+        text_description = request.get("text_description")
+        timerange = request.get("timerange")  # [start, end] in seconds
+        
+        if not video_path and not text_description:
+            raise HTTPException(status_code=400, detail="비디오 파일 또는 텍스트 설명 중 하나는 필수입니다")
+        
+        # 시간 범위 처리
+        selected_timerange = None
+        if timerange and len(timerange) == 2:
+            selected_timerange = (float(timerange[0]), float(timerange[1]))
+        
+        start_time = time.time()
+        
+        # 멀티모달 예측 실행
+        prediction_result = multimodal_predictor.predict_from_video_and_text(
+            video_path=video_path,
+            text_description=text_description,
+            selected_timerange=selected_timerange
+        )
+        
+        processing_time = time.time() - start_time
+        
+        if not prediction_result.get('success'):
+            raise HTTPException(status_code=500, detail="멀티모달 예측에 실패했습니다")
+        
+        combined_pred = prediction_result['combined_prediction']
+        
+        # API 응답 형식으로 변환
+        response = {
+            'success': True,
+            'prediction_mode': combined_pred.get('analysis_mode', 'multimodal'),
+            
+            # 향수 프로필
+            'scent_profile': {
+                'name': combined_pred.get('name', '멀티모달 향수'),
+                'description': combined_pred.get('description', ''),
+                'intensity': combined_pred.get('intensity', 5.0),
+                'confidence': combined_pred.get('confidence', 0.5),
+                'predicted_gender': combined_pred.get('predicted_gender', 'unisex')
+            },
+            
+            # 향료 노트
+            'fragrance_notes': combined_pred.get('recommended_notes', {}),
+            
+            # 분석 정보
+            'analysis_details': {
+                'visual_mood': combined_pred.get('visual_mood', 'neutral'),
+                'text_emotions': combined_pred.get('text_emotions', {}),
+                'weights': combined_pred.get('weights', {}),
+                'source_confidences': combined_pred.get('source_confidences', {})
+            },
+            
+            # 원본 분석 결과
+            'raw_analysis': {
+                'text_analysis': prediction_result.get('text_analysis', {}),
+                'video_analysis': prediction_result.get('video_analysis', {})
+            },
+            
+            # 메타데이터
+            'processing_time': processing_time,
+            'ml_enhanced': combined_pred.get('ml_enhanced', False),
+            'input_sources': {
+                'has_video': video_path is not None,
+                'has_text': text_description is not None,
+                'has_timerange': selected_timerange is not None
+            }
+        }
+        
+        logger.info(f"Multimodal prediction completed in {processing_time:.3f}s with confidence {combined_pred.get('confidence', 0):.2f}")
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"멀티모달 예측 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"멀티모달 예측 처리 중 오류: {str(e)}")
+
+@app.post("/api/enhanced_video_recommendation")  
+async def enhanced_video_recommendation(request: dict):
+    """🎬⚡ 향상된 실시간 비디오 향수 추천 API"""
+    
+    if not recommender:
+        raise HTTPException(status_code=503, detail="실시간 추천 시스템이 초기화되지 않았습니다")
+    
+    try:
+        video_path = request.get("video_path")
+        text_description = request.get("text_description")
+        timerange = request.get("timerange")
+        use_cache = request.get("use_cache", True)
+        
+        if not video_path:
+            raise HTTPException(status_code=400, detail="비디오 파일 경로가 필요합니다")
+        
+        # 시간 범위 튜플 변환
+        timerange_tuple = None
+        if timerange and len(timerange) == 2:
+            timerange_tuple = (float(timerange[0]), float(timerange[1]))
+        
+        # 실시간 추천 시스템의 비디오 기능 사용
+        if hasattr(recommender, 'recommend_for_video_scene'):
+            recommendation = recommender.recommend_for_video_scene(
+                video_path=video_path,
+                text_description=text_description,
+                timerange=timerange_tuple,
+                use_cache=use_cache
+            )
+            
+            return {
+                'success': True,
+                'scene_analysis': recommendation.get('scene_analysis', {}),
+                'scent_profile': recommendation.get('scent_profile', {}),
+                'product_recommendations': recommendation.get('product_recommendations', {}),
+                'meta': recommendation.get('meta', {}),
+                'system_mode': 'REALTIME_VIDEO_ENHANCED'
+            }
+        else:
+            # 폴백: 기존 텍스트 기반 추천 사용
+            description_text = text_description or f"비디오 파일 기반 장면 ({video_path})"
+            
+            recommendation = recommender.recommend_for_scene(
+                description=description_text,
+                scene_type="auto",
+                mood="auto",
+                intensity_preference=5
+            )
+            
+            recommendation['meta']['fallback_mode'] = 'text_based'
+            recommendation['meta']['original_video_path'] = video_path
+            
+            return recommendation
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"향상된 비디오 추천 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"비디오 추천 처리 중 오류: {str(e)}")
+
 @app.get("/api/stats")
 async def get_system_stats():
     """시스템 통계 API"""
@@ -602,20 +952,42 @@ async def get_system_stats():
     if recommender:
         stats["recommender"] = recommender.get_performance_stats()
     
+    if video_analyzer:
+        stats["video_analyzer"] = {
+            "status": "active",
+            "supported_formats": video_analyzer.supported_formats
+        }
+    
+    if multimodal_predictor:
+        stats["multimodal_predictor"] = {
+            "status": "active",
+            "text_predictor_available": multimodal_predictor.text_predictor is not None,
+            "video_analyzer_available": multimodal_predictor.video_analyzer is not None
+        }
+    
     return {
         "stats": stats,
+        "system_capabilities": {
+            "text_analysis": data_manager is not None or recommender is not None,
+            "video_analysis": video_analyzer is not None,
+            "multimodal_prediction": multimodal_predictor is not None,
+            "deep_learning": dl_predictor is not None or trained_predictor is not None,
+            "realtime_recommendations": recommender is not None,
+            "scent_simulation": scent_simulator is not None
+        },
         "timestamp": time.time()
     }
 
 if __name__ == "__main__":
-    print("Movie Scent AI Web Server Starting...")
-    print("Web Interface: http://localhost:8000")
-    print("API Docs: http://localhost:8000/docs")
+    print(f"Movie Scent AI Web Server Starting...")
+    print(f"Web Interface: http://{config.server_host}:{config.server_port}")
+    print(f"API Docs: http://{config.server_host}:{config.server_port}/docs")
+    print(f"Configuration: {config.to_dict()}")
     
     uvicorn.run(
         "app:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
+        host=config.server_host,
+        port=config.server_port,
+        reload=config.reload_on_change,
+        log_level=config.log_level.lower()
     )

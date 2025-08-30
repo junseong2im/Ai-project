@@ -13,6 +13,9 @@ sentence-transformers>=2.7.0
 openai>=1.52.0
 # 다중 모달 처리
 pillow>=10.0.0
+# 비디오 처리 및 컴퓨터 비전
+opencv-python>=4.8.0
+opencv-contrib-python>=4.8.0
 # 강화학습
 gymnasium>=0.29.0
 # 분자 구조 처리 (향료 화학 구조 분석용)

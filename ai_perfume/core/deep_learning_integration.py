@@ -13,6 +13,13 @@ from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 import logging
 
+# 비디오 분석 통합
+try:
+    from .video_scent_analyzer import VideoScentAnalyzer, analyze_video_for_scent
+except ImportError:
+    VideoScentAnalyzer = None
+    analyze_video_for_scent = None
+
 logger = logging.getLogger(__name__)
 
 class PerfumeNeuralNetwork(nn.Module):
@@ -43,14 +50,18 @@ class PerfumeNeuralNetwork(nn.Module):
 class DeepLearningPerfumePredictor:
     """딥러닝 기반 향수 예측기"""
     
-    def __init__(self, model_path: str = None):
+    def __init__(self, model_path: str = None, preprocessor_path: str = None, metadata_path: str = None):
         self.model_path = model_path or "models/fragrance_dl_models/best_model.pth"
+        self.preprocessor_path = preprocessor_path or "data/processed/preprocessor_tools.pkl"
+        self.metadata_path = metadata_path or "data/processed/metadata.json"
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         # 모델 및 전처리 도구들
         self.model = None
         self.scaler = None
         self.label_encoders = {}
+        self.preprocessor_tools = {}
+        self.metadata = {}
         self.is_loaded = False
         
         # 향료 노트 카테고리
@@ -608,3 +619,318 @@ def get_trained_predictor() -> TrainedFragrancePredictor:
     if _trained_predictor is None:
         _trained_predictor = TrainedFragrancePredictor()
     return _trained_predictor
+
+class MultiModalPerfumePredictor:
+    """텍스트 + 비디오 분석을 결합한 멀티모달 향수 예측기"""
+    
+    def __init__(self):
+        self.text_predictor = None
+        self.video_analyzer = None
+        
+        # 딥러닝 예측기 초기화
+        try:
+            self.text_predictor = DeepLearningPerfumePredictor()
+        except Exception as e:
+            logger.warning(f"Text predictor initialization failed: {e}")
+            
+        # 비디오 분석기 초기화
+        if VideoScentAnalyzer:
+            try:
+                self.video_analyzer = VideoScentAnalyzer()
+            except Exception as e:
+                logger.warning(f"Video analyzer initialization failed: {e}")
+        
+        logger.info("MultiModal perfume predictor initialized")
+    
+    def predict_from_video_and_text(self, video_path: str = None, 
+                                  text_description: str = None,
+                                  selected_timerange: Tuple[float, float] = None) -> Dict[str, Any]:
+        """비디오와 텍스트를 결합한 향수 예측"""
+        
+        results = {
+            'success': False,
+            'text_analysis': {},
+            'video_analysis': {},
+            'combined_prediction': {},
+            'confidence': 0.0
+        }
+        
+        text_confidence = 0.0
+        video_confidence = 0.0
+        
+        # 1. 텍스트 분석
+        if text_description and self.text_predictor:
+            try:
+                text_result = self.text_predictor.enhanced_predict(text_description)
+                results['text_analysis'] = text_result
+                text_confidence = text_result.get('confidence', 0.5)
+                logger.info(f"Text analysis completed with confidence: {text_confidence}")
+            except Exception as e:
+                logger.error(f"Text analysis failed: {e}")
+                results['text_analysis'] = {'error': str(e)}
+        
+        # 2. 비디오 분석  
+        if video_path and self.video_analyzer:
+            try:
+                if selected_timerange:
+                    # 특정 구간 분석
+                    video_result = self._analyze_video_segment(video_path, selected_timerange)
+                else:
+                    # 전체 비디오 분석
+                    video_result = analyze_video_for_scent(video_path, max_frames=30)
+                
+                if video_result and video_result.get('success'):
+                    results['video_analysis'] = video_result
+                    video_confidence = video_result['overall_scent'].get('confidence', 0.5)
+                    logger.info(f"Video analysis completed with confidence: {video_confidence}")
+                else:
+                    results['video_analysis'] = {'error': 'Video analysis failed'}
+                    
+            except Exception as e:
+                logger.error(f"Video analysis failed: {e}")
+                results['video_analysis'] = {'error': str(e)}
+        
+        # 3. 결합 예측
+        if results['text_analysis'] and results['video_analysis']:
+            try:
+                combined_result = self._combine_predictions(
+                    results['text_analysis'], 
+                    results['video_analysis'],
+                    text_confidence,
+                    video_confidence
+                )
+                results['combined_prediction'] = combined_result
+                results['confidence'] = combined_result.get('confidence', 0.5)
+                results['success'] = True
+                
+                logger.info(f"Combined prediction completed with confidence: {results['confidence']}")
+                
+            except Exception as e:
+                logger.error(f"Prediction combination failed: {e}")
+                results['combined_prediction'] = {'error': str(e)}
+        
+        elif results['text_analysis'] and not results['video_analysis'].get('error'):
+            # 텍스트만 사용
+            results['combined_prediction'] = results['text_analysis']
+            results['confidence'] = text_confidence
+            results['success'] = True
+            
+        elif results['video_analysis'] and not results['video_analysis'].get('error'):
+            # 비디오만 사용
+            video_scent = results['video_analysis'].get('overall_scent', {})
+            results['combined_prediction'] = self._video_to_standard_format(video_scent)
+            results['confidence'] = video_confidence
+            results['success'] = True
+        
+        return results
+    
+    def _analyze_video_segment(self, video_path: str, timerange: Tuple[float, float]) -> Dict[str, Any]:
+        """비디오의 특정 구간 분석"""
+        start_time, end_time = timerange
+        
+        try:
+            # 전체 분석 후 구간 필터링 (단순화된 접근)
+            full_analysis = analyze_video_for_scent(video_path, max_frames=50)
+            
+            if not full_analysis or not full_analysis.get('success'):
+                return full_analysis
+            
+            # 해당 시간 범위의 세그먼트 찾기
+            target_segment = None
+            for segment in full_analysis.get('scene_segments', []):
+                seg_start = segment.get('start_time', 0)
+                seg_end = segment.get('end_time', 0)
+                
+                # 겹치는 구간이 있는지 확인
+                if (seg_start <= start_time <= seg_end or 
+                    seg_start <= end_time <= seg_end or
+                    (start_time <= seg_start and end_time >= seg_end)):
+                    target_segment = segment
+                    break
+            
+            if target_segment:
+                # 특정 세그먼트의 향 정보 반환
+                return {
+                    'success': True,
+                    'selected_segment': target_segment,
+                    'overall_scent': target_segment.get('scent', {}),
+                    'timerange': {'start': start_time, 'end': end_time}
+                }
+            else:
+                # 가장 가까운 세그먼트 사용
+                closest_segment = min(
+                    full_analysis.get('scene_segments', []),
+                    key=lambda s: abs(s.get('start_time', 0) - start_time),
+                    default=None
+                )
+                
+                if closest_segment:
+                    return {
+                        'success': True,
+                        'selected_segment': closest_segment,
+                        'overall_scent': closest_segment.get('scent', {}),
+                        'timerange': {'start': start_time, 'end': end_time},
+                        'note': 'Used closest segment'
+                    }
+        
+        except Exception as e:
+            logger.error(f"Video segment analysis failed: {e}")
+            
+        return {'success': False, 'error': 'Segment analysis failed'}
+    
+    def _combine_predictions(self, text_result: Dict, video_result: Dict, 
+                           text_conf: float, video_conf: float) -> Dict[str, Any]:
+        """텍스트와 비디오 분석 결과 결합"""
+        
+        # 신뢰도 기반 가중치 계산
+        total_conf = text_conf + video_conf
+        if total_conf == 0:
+            text_weight, video_weight = 0.5, 0.5
+        else:
+            text_weight = text_conf / total_conf
+            video_weight = video_conf / total_conf
+        
+        logger.info(f"Combining predictions - Text weight: {text_weight:.2f}, Video weight: {video_weight:.2f}")
+        
+        # 비디오 결과 표준화
+        video_scent = video_result.get('overall_scent', {})
+        video_standardized = self._video_to_standard_format(video_scent)
+        
+        # 노트 결합
+        combined_notes = self._merge_notes(
+            text_result.get('recommended_notes', {}),
+            video_standardized.get('recommended_notes', {}),
+            text_weight, video_weight
+        )
+        
+        # 강도 결합
+        text_intensity = text_result.get('intensity', 5.0)
+        video_intensity = video_standardized.get('intensity', 5.0)
+        combined_intensity = (text_intensity * text_weight + video_intensity * video_weight)
+        
+        # 성별 예측 결합
+        text_gender = text_result.get('predicted_gender', 'unisex')
+        video_gender = video_standardized.get('predicted_gender', 'unisex')
+        
+        # 더 높은 신뢰도의 성별 예측 사용
+        combined_gender = text_gender if text_conf > video_conf else video_gender
+        
+        # 최종 신뢰도 계산 (둘의 조화평균)
+        if text_conf > 0 and video_conf > 0:
+            combined_confidence = 2 * text_conf * video_conf / (text_conf + video_conf)
+            # 결합으로 인한 추가 신뢰도 보너스
+            combined_confidence = min(0.95, combined_confidence * 1.1)
+        else:
+            combined_confidence = max(text_conf, video_conf)
+        
+        return {
+            'name': f"멀티모달 {text_result.get('name', '향수')}",
+            'description': self._create_combined_description(text_result, video_result),
+            'recommended_notes': combined_notes,
+            'intensity': combined_intensity,
+            'predicted_gender': combined_gender,
+            'confidence': combined_confidence,
+            'analysis_mode': 'multimodal',
+            'weights': {'text': text_weight, 'video': video_weight},
+            'source_confidences': {'text': text_conf, 'video': video_conf},
+            
+            # 추가 메타데이터
+            'visual_mood': video_scent.get('scene_analysis', {}).get('primary_mood', 'neutral'),
+            'text_emotions': text_result.get('emotions', {}),
+            'ml_enhanced': text_result.get('ml_enhanced', False) or video_result.get('success', False)
+        }
+    
+    def _video_to_standard_format(self, video_scent: Dict) -> Dict[str, Any]:
+        """비디오 분석 결과를 표준 형식으로 변환"""
+        scent_profile = video_scent.get('scent_profile', {})
+        scene_analysis = video_scent.get('scene_analysis', {})
+        
+        # 노트 추출
+        primary_notes = scent_profile.get('primary_notes', [])
+        secondary_notes = scent_profile.get('secondary_notes', [])
+        
+        # 3층 구조로 재배치
+        notes = {
+            'top_notes': primary_notes[:2] if len(primary_notes) >= 2 else primary_notes,
+            'middle_notes': primary_notes[2:4] + secondary_notes[:2] if len(primary_notes) > 2 else secondary_notes[:3],
+            'base_notes': secondary_notes[2:4] if len(secondary_notes) > 2 else secondary_notes[-2:] if len(secondary_notes) >= 2 else ['musk']
+        }
+        
+        # 무드 기반 성별 예측
+        mood = scent_profile.get('mood', 'neutral')
+        gender_mapping = {
+            'romantic': 'women',
+            'mysterious': 'women', 
+            'energetic': 'unisex',
+            'calm': 'unisex',
+            'fresh': 'unisex',
+            'dramatic': 'men'
+        }
+        
+        return {
+            'recommended_notes': notes,
+            'intensity': scent_profile.get('intensity', 5.0),
+            'predicted_gender': gender_mapping.get(mood, 'unisex'),
+            'visual_elements': scene_analysis.get('dominant_elements', []),
+            'primary_mood': scene_analysis.get('primary_mood', mood)
+        }
+    
+    def _merge_notes(self, text_notes: Dict, video_notes: Dict, 
+                    text_weight: float, video_weight: float) -> Dict[str, List[str]]:
+        """텍스트와 비디오에서 추출한 노트들을 가중치 기반으로 병합"""
+        
+        merged = {'top_notes': [], 'middle_notes': [], 'base_notes': []}
+        
+        for note_type in merged.keys():
+            text_list = text_notes.get(note_type, [])
+            video_list = video_notes.get(note_type, [])
+            
+            # 가중치 기반 선택
+            combined_list = []
+            
+            # 텍스트 노트 (가중치 적용)
+            text_count = int(len(text_list) * text_weight) + 1
+            combined_list.extend(text_list[:text_count])
+            
+            # 비디오 노트 (가중치 적용, 중복 제거)
+            video_count = int(len(video_list) * video_weight) + 1
+            for note in video_list[:video_count]:
+                if note not in combined_list:
+                    combined_list.append(note)
+            
+            # 최대 3개까지 제한
+            merged[note_type] = combined_list[:3]
+            
+            # 빈 리스트 방지
+            if not merged[note_type]:
+                default_notes = {
+                    'top_notes': ['bergamot', 'lemon'],
+                    'middle_notes': ['rose', 'jasmine'],
+                    'base_notes': ['musk', 'cedar']
+                }
+                merged[note_type] = default_notes[note_type][:2]
+        
+        return merged
+    
+    def _create_combined_description(self, text_result: Dict, video_result: Dict) -> str:
+        """텍스트와 비디오 분석을 결합한 설명 생성"""
+        text_desc = text_result.get('description', '')
+        
+        video_scent = video_result.get('overall_scent', {})
+        visual_mood = video_scent.get('scene_analysis', {}).get('primary_mood', 'neutral')
+        
+        base_desc = text_desc[:150] if len(text_desc) > 150 else text_desc
+        
+        visual_supplement = f"영상에서 감지된 {visual_mood} 무드와 시각적 요소들이 조화롭게 어우러진"
+        
+        return f"{base_desc} {visual_supplement} 멀티모달 AI 분석 기반 향수입니다."
+
+# 싱글톤 인스턴스
+_multimodal_predictor = None
+
+def get_multimodal_predictor() -> MultiModalPerfumePredictor:
+    """멀티모달 예측기 싱글톤 인스턴스 반환"""
+    global _multimodal_predictor
+    if _multimodal_predictor is None:
+        _multimodal_predictor = MultiModalPerfumePredictor()
+    return _multimodal_predictor
