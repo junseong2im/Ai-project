@@ -1,295 +1,295 @@
-# AI Perfume System
+# AI 향수 시스템
 
-A multimodal artificial intelligence system for generating fragrance formulations based on textual descriptions and video content analysis. The system combines computer vision, natural language processing, and deep learning techniques to create fragrance recommendations.
+텍스트 설명과 비디오 콘텐츠 분석을 기반으로 향수 제형을 생성하는 다중 모달 인공지능 시스템입니다. 컴퓨터 비전, 자연어 처리, 딥러닝 기술을 결합하여 향수 추천 시스템을 구현하였습니다.
 
-## Table of Contents
+## 목차
 
-- [Project Overview](#project-overview)
-- [Features](#features)  
-- [Technical Architecture](#technical-architecture)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Documentation](#api-documentation)
-- [Configuration](#configuration)
-- [Performance Metrics](#performance-metrics)
-- [File Structure](#file-structure)
-- [Contributing](#contributing)
-- [License](#license)
+- [프로젝트 개요](#프로젝트-개요)
+- [기능](#기능)
+- [기술 아키텍처](#기술-아키텍처)
+- [설치](#설치)
+- [사용법](#사용법)
+- [API 문서](#api-문서)
+- [설정](#설정)
+- [성능 지표](#성능-지표)
+- [파일 구조](#파일-구조)
+- [기여](#기여)
+- [라이센스](#라이센스)
 
-## Project Overview
+## 프로젝트 개요
 
-### Purpose
-The AI Perfume System translates visual scenes and emotional contexts into fragrance formulations. The system serves perfumers, filmmakers, and fragrance researchers by providing data-driven recommendations for scent creation.
+### 목적
+AI 향수 시스템은 시각적 장면과 감정적 맥락을 향수 제형으로 변환합니다. 이 시스템은 조향사, 영화 제작자, 향수 연구자들에게 데이터 기반 향료 제작 권장사항을 제공합니다.
 
-### Key Capabilities
-- **Multimodal Analysis**: Processes both textual descriptions and video content
-- **Real-time Processing**: Fast response times for cached content  
-- **Security**: Comprehensive file validation and security measures
-- **Scalable Architecture**: Designed for production environments
-- **Configurable Deployment**: Environment-based configuration management
+### 주요 기능
+- **다중 모달 분석**: 텍스트 설명과 비디오 콘텐츠 모두 처리
+- **실시간 처리**: 캐시된 콘텐츠에 대한 빠른 응답 시간
+- **보안**: 포괄적인 파일 검증 및 보안 조치
+- **확장 가능한 아키텍처**: 프로덕션 환경을 위해 설계
+- **구성 가능한 배포**: 환경 기반 구성 관리
 
-### Performance Metrics
-- **Overall Confidence**: 92.1% average confidence
-- **High Confidence Rate**: 28/35 test cases (80.0% success rate)
-- **Genre Success Rate**: 6/7 genres achieving 90% or higher (85.7% success rate)
-- **Training Dataset**: 105,000 recipes with comprehensive fragrance materials database
-
----
-
-## Performance Analysis
-
-### Confidence Achievement Results
-- **Overall Average Confidence**: 92.1%
-- **High Confidence Achievement Rate**: 28/35 test cases (80.0% success rate)
-- **Genre Success Rate**: 6/7 genres achieving 90% or higher (85.7% success rate)
-
-### Genre-specific Performance Analysis
-```
-Action Genre: 92.6% confidence (4/5 cases successful, 80% achievement rate)
-Romantic Genre: 94.7% confidence (5/5 cases successful, 100% achievement rate)
-Horror Genre: 91.5% confidence (4/5 cases successful, 80% achievement rate)
-Drama Genre: 93.3% confidence (5/5 cases successful, 100% achievement rate)
-Thriller Genre: 92.0% confidence (4/5 cases successful, 80% achievement rate)
-Comedy Genre: 89.6% confidence (2/5 cases successful, 40% achievement rate)
-Sci-Fi Genre: 91.2% confidence (4/5 cases successful, 80% achievement rate)
-```
-
-### Dataset Scale
-- **Training Dataset**: 105,000 high-quality recipes (15,000 per genre)
-- **Model Parameters**: 5,757,842 trainable parameters
-- **Feature Vector Dimensions**: 120 dimensions
-- **Processing Speed**: Average 0.003 seconds per prediction
+### 성능 지표
+- **전체 신뢰도**: 평균 신뢰도 92.1%
+- **고신뢰도 달성률**: 28/35 테스트 케이스 (80.0% 성공률)
+- **장르별 성공률**: 7개 장르 중 6개에서 90% 이상 달성 (85.7% 성공률)
+- **훈련 데이터셋**: 포괄적인 향료 재료 데이터베이스가 포함된 105,000개 레시피
 
 ---
 
-## Technical Architecture
+## 성능 분석
 
-### 1. Data Generation Layer
+### 신뢰도 달성 결과
+- **전체 평균 신뢰도**: 92.1%
+- **고신뢰도 달성률**: 28/35 테스트 케이스 (80.0% 성공률)
+- **장르별 성공률**: 7개 장르 중 6개에서 90% 이상 달성 (85.7% 성공률)
+
+### 장르별 세부 성능 분석
+```
+액션 장르: 92.6% 신뢰도 (5개 중 4개 케이스 성공, 80% 달성률)
+로맨스 장르: 94.7% 신뢰도 (5개 중 5개 케이스 성공, 100% 달성률)
+공포 장르: 91.5% 신뢰도 (5개 중 4개 케이스 성공, 80% 달성률)
+드라마 장르: 93.3% 신뢰도 (5개 중 5개 케이스 성공, 100% 달성률)
+스릴러 장르: 92.0% 신뢰도 (5개 중 4개 케이스 성공, 80% 달성률)
+코미디 장르: 89.6% 신뢰도 (5개 중 2개 케이스 성공, 40% 달성률)
+SF 장르: 91.2% 신뢰도 (5개 중 4개 케이스 성공, 80% 달성률)
+```
+
+### 데이터셋 규모
+- **훈련 데이터셋**: 105,000개 고품질 레시피 (장르별 15,000개)
+- **모델 매개변수**: 5,757,842개 훈련 가능한 매개변수
+- **특징 벡터 차원**: 120차원
+- **처리 속도**: 예측당 평균 0.003초
+
+---
+
+## 기술 아키텍처
+
+### 1. 데이터 생성 계층
 
 **enhanced_multi_genre_generator.py**
-- **Function**: Large-scale dataset generation specialized by genre
-- **Performance**: 105,000 recipes generated
-- **Quality Management**: Average quality score 0.915/1.0
-- **Features**:
-  - Even distribution of 15,000 per genre across 7 genres
-  - 40 famous movie-based scenarios
-  - 18 variations including weather, time, and emotion enhancements
-  - Genre-specific fragrance mapping system
+- **기능**: 장르별로 특화된 대규모 데이터셋 생성
+- **성능**: 105,000개 레시피 생성
+- **품질 관리**: 평균 품질 점수 0.915/1.0
+- **특징**:
+  - 7개 장르에 걸쳐 장르별 15,000개 균등 분배
+  - 40개 유명 영화 기반 시나리오
+  - 날씨, 시간, 감정 강화를 포함한 18개 변형
+  - 장르별 특화 향료 매핑 시스템
 
 **movie_recipe_generator.py**
-- **Function**: Basic movie scene recipe generation
-- **Data Scale**: 100,000 basic recipes
-- **Processing Performance**: 500 recipes per second generation
-- **Algorithm**: Rule-based + probabilistic combination
+- **기능**: 기본 영화 장면 레시피 생성
+- **데이터 규모**: 100,000개 기본 레시피
+- **처리 성능**: 초당 500개 레시피 생성
+- **알고리즘**: 규칙 기반 + 확률적 조합
 
-### 2. Deep Learning Training Layer
+### 2. 딥러닝 훈련 계층
 
 **enhanced_movie_scent_trainer.py**
-- **Model Architecture**: Multi-Head Attention + Residual Blocks
-- **Input Dimensions**: 120-dimensional advanced feature vectors
-- **Hidden Layer Configuration**: [1024, 512, 256, 128, 64]
-- **Attention Heads**: 8 Multi-Head Attention
-- **Training Results**:
-  - Initial confidence: 64.4%
-  - Final confidence: 75.8%
-  - Quality filtering: 98,848 high-quality data (94.1% pass rate)
+- **모델 아키텍처**: Multi-Head Attention + Residual Blocks
+- **입력 차원**: 120차원 고급 특징 벡터
+- **은닉층 구성**: [1024, 512, 256, 128, 64]
+- **어텐션 헤드**: 8개 Multi-Head Attention
+- **훈련 결과**:
+  - 초기 신뢰도: 64.4%
+  - 최종 신뢰도: 75.8%
+  - 품질 필터링: 98,848개 고품질 데이터 (94.1% 통과율)
 
 **movie_scent_trainer.py**
-- **Basic Model**: Feed-Forward Neural Network
-- **Performance**: 57% basic confidence
-- **Parameters**: 2,847,234
-- **Purpose**: Baseline model
+- **기본 모델**: Feed-Forward Neural Network
+- **성능**: 57% 기본 신뢰도
+- **매개변수**: 2,847,234개
+- **용도**: 기준선 모델
 
 **ultimate_confidence_trainer.py**
-- **Purpose**: Genre-specific model training
-- **Features**: Individual optimization per genre
-- **Expected Performance**: 90%+ confidence achievement per genre
-- **Implementation Status**: Architecture complete, large-scale training ready
+- **목적**: 장르별 특화 모델 훈련
+- **특징**: 장르별 개별 최적화
+- **예상 성능**: 장르별 90%+ 신뢰도 달성
+- **구현 상태**: 아키텍처 완성, 대규모 훈련 준비
 
-### 3. Confidence Enhancement Layer
+### 3. 신뢰도 향상 계층
 
 **confidence_booster.py**
-- **Ensemble Methodology**: Combination of 4 feature extractors
-  - Basic Feature Extractor: Basic text features
+- **앙상블 방법론**: 4개 특징 추출기 조합
+  - Basic Feature Extractor: 기본 텍스트 특징
   - Advanced Feature Extractor: TF-IDF + N-gram
-  - Statistical Feature Extractor: Statistical features
-  - Semantic Feature Extractor: Semantic features
-- **Achievement**: Romantic genre 90.3% confidence
-- **Processing Time**: 0.002 seconds average prediction time
-- **Memory Usage**: 12MB model size
+  - Statistical Feature Extractor: 통계적 특징
+  - Semantic Feature Extractor: 의미론적 특징
+- **달성 성과**: 로맨스 장르 90.3% 신뢰도
+- **처리 시간**: 평균 예측 시간 0.002초
+- **메모리 사용**: 모델 크기 12MB
 
 **high_confidence_predictor.py**
-- **Integrated System**: Deep Learning + Ensemble + Rule-based
-- **Weight System**: Deep Learning 40%, Ensemble 35%, Rules 25%
-- **Validation Results**:
-  - 3/4 scenes achieving 90% or higher (75% success rate)
-  - Average confidence: 92.9%
-  - Highest confidence: 96.9% (Action genre)
-  - Lowest confidence: 88.7%
+- **통합 시스템**: 딥러닝 + 앙상블 + 규칙 기반
+- **가중치 시스템**: 딥러닝 40%, 앙상블 35%, 규칙 25%
+- **검증 결과**:
+  - 4개 장면 중 3개에서 90% 이상 달성 (75% 성공률)
+  - 평균 신뢰도: 92.9%
+  - 최고 신뢰도: 96.9% (액션 장르)
+  - 최저 신뢰도: 88.7%
 
-### 4. Validation & Testing Layer
+### 4. 검증 및 테스트 계층
 
 **final_confidence_validator.py**
-- **Test Scope**: 7 genres × 5 scenarios = 35 test cases
-- **Validation Methodology**: Real movie scene-based simulation
-- **Performance Measurement**:
-  - Overall average confidence: 92.1%
-  - 90% or higher achievement: 28/35 cases (80.0%)
-  - Genre success rate: 6/7 genres (85.7%)
+- **테스트 범위**: 7개 장르 × 5개 시나리오 = 35개 테스트 케이스
+- **검증 방법론**: 실제 영화 장면 기반 시뮬레이션
+- **성능 측정**:
+  - 전체 평균 신뢰도: 92.1%
+  - 90% 이상 달성: 28/35 케이스 (80.0%)
+  - 장르 성공률: 7개 장르 중 6개 (85.7%)
 
-### 5. Core Business Logic
+### 5. 핵심 비즈니스 로직
 
 **scene_fragrance_recipe.py**
-- **Fragrance Database**: 50 major fragrance components
-- **Combination Algorithm**: 3-tier fragrance structure (Top/Middle/Base)
-- **Concentration Calculation**: Chemically accurate concentration optimization
-- **Volatility Control**: Duration prediction and control
-- **Functional Modules**:
-  - Fragrance compatibility verification
-  - Concentration balance adjustment
-  - Duration optimization
-  - Seasonal combination recommendations
+- **향료 데이터베이스**: 50개 주요 향료 성분
+- **조합 알고리즘**: 3단계 향료 구조 (Top/Middle/Base)
+- **농도 계산**: 화학적으로 정확한 농도 최적화
+- **휘발성 제어**: 지속 시간 예측 및 제어
+- **기능 모듈**:
+  - 향료 호환성 검증
+  - 농도 균형 조정
+  - 지속 시간 최적화
+  - 계절별 조합 권장사항
 
 **test_trained_model.py**
-- **Model Loading**: PyTorch-based model loading system
-- **Real-time Prediction**: Prediction completion within 0.001 seconds
-- **Caching System**: Redis-based result caching
-- **API Interface**: REST API endpoint provision
+- **모델 로딩**: PyTorch 기반 모델 로딩 시스템
+- **실시간 예측**: 0.001초 이내 예측 완료
+- **캐싱 시스템**: Redis 기반 결과 캐싱
+- **API 인터페이스**: REST API 엔드포인트 제공
 
-### 6. System Integration
+### 6. 시스템 통합
 
 **ultimate_movie_scent_system.py**
-- **Integrated Platform**: Integration of all AI modules
-- **Batch Processing**: Simultaneous processing of multiple scenes
-- **Performance Monitoring**: Real-time performance tracking
-- **Result Management**: JSON-based result storage
+- **통합 플랫폼**: 모든 AI 모듈 통합
+- **배치 처리**: 여러 장면 동시 처리
+- **성능 모니터링**: 실시간 성능 추적
+- **결과 관리**: JSON 기반 결과 저장
 
 ---
 
-## Data Assets
+## 데이터 자산
 
-### Generated Datasets
-**generated_recipes/ folder**
-- **all_movie_recipes.json**: 100,000 basic recipes (307MB)
-- **enhanced_movie_recipes_105k.json**: 105,000 advanced recipes (354MB)
-- **Individual genre files**:
-  - action_recipes_enhanced.json: 15,000 recipes (51MB)
-  - romantic_recipes_enhanced.json: 15,000 recipes (51MB)
-  - horror_recipes_enhanced.json: 15,000 recipes (51MB)
-  - drama_recipes_enhanced.json: 15,000 recipes (51MB)
-  - thriller_recipes_enhanced.json: 15,000 recipes (51MB)
-  - comedy_recipes_enhanced.json: 15,000 recipes (51MB)
-  - sci_fi_recipes_enhanced.json: 15,000 recipes (51MB)
+### 생성된 데이터셋
+**generated_recipes/ 폴더**
+- **all_movie_recipes.json**: 100,000개 기본 레시피 (307MB)
+- **enhanced_movie_recipes_105k.json**: 105,000개 고급 레시피 (354MB)
+- **개별 장르 파일**:
+  - action_recipes_enhanced.json: 15,000개 레시피 (51MB)
+  - romantic_recipes_enhanced.json: 15,000개 레시피 (51MB)
+  - horror_recipes_enhanced.json: 15,000개 레시피 (51MB)
+  - drama_recipes_enhanced.json: 15,000개 레시피 (51MB)
+  - thriller_recipes_enhanced.json: 15,000개 레시피 (51MB)
+  - comedy_recipes_enhanced.json: 15,000개 레시피 (51MB)
+  - sci_fi_recipes_enhanced.json: 15,000개 레시피 (51MB)
 
-### Trained Model Files
-**models/ folder**
-- **movie_scent_model.pth**: Basic deep learning model (22MB)
-- **enhanced_movie_scent_model_conf_0.650.pth**: High-performance model (45MB)
-- **preprocessors.pkl**: Preprocessing pipeline (2MB)
-- **enhanced_preprocessors.pkl**: Advanced preprocessors (5MB)
+### 훈련된 모델 파일
+**models/ 폴더**
+- **movie_scent_model.pth**: 기본 딥러닝 모델 (22MB)
+- **enhanced_movie_scent_model_conf_0.650.pth**: 고성능 모델 (45MB)
+- **preprocessors.pkl**: 전처리 파이프라인 (2MB)
+- **enhanced_preprocessors.pkl**: 고급 전처리기 (5MB)
 
-### Validation Result Data
-**validation_results/ folder**
-- **final_confidence_validation.json**: Comprehensive validation results
-- **ultimate_prediction_results.json**: Final prediction result collection
+### 검증 결과 데이터
+**validation_results/ 폴더**
+- **final_confidence_validation.json**: 종합 검증 결과
+- **ultimate_prediction_results.json**: 최종 예측 결과 모음
 
 ---
 
-## Infrastructure & Deployment
+## 인프라 및 배포
 
-### Database Design
+### 데이터베이스 설계
 **database_schema.sql**
-- **PostgreSQL + pgvector**: Vector search support
-- **Main Tables**:
-  - fragrance_materials: Fragrance master (50 components)
-  - movie_scenes: Movie scene metadata (vector embeddings)
-  - ai_fragrance_recipes: AI-generated recipes (main table)
-  - model_performance: AI model performance tracking
-  - user_feedback: User feedback (for learning improvement)
-- **Performance Optimization**:
-  - Vector similarity search: IVFFlat index
-  - Full-text search: GIN index support
-  - Caching tables: Frequently queried prediction results
+- **PostgreSQL + pgvector**: 벡터 검색 지원
+- **주요 테이블**:
+  - fragrance_materials: 향료 마스터 (50개 성분)
+  - movie_scenes: 영화 장면 메타데이터 (벡터 임베딩)
+  - ai_fragrance_recipes: AI 생성 레시피 (메인 테이블)
+  - model_performance: AI 모델 성능 추적
+  - user_feedback: 사용자 피드백 (학습 개선용)
+- **성능 최적화**:
+  - 벡터 유사도 검색: IVFFlat 인덱스
+  - 전문 검색: GIN 인덱스 지원
+  - 캐싱 테이블: 자주 조회되는 예측 결과
 
-### Git LFS Large File Management
-- **Tracking Target**: *.json, *.pth, *.pkl
-- **Total LFS Capacity**: 1.6GB
-- **Upload Performance**: 14MB/s average speed
-- **File Count**: 42 large files
-
----
-
-## Performance Benchmarks
-
-### Prediction Performance
-- **Processing Speed**: 3ms average prediction time
-- **Batch Processing**: 1000 scenes/second processing capability
-- **Memory Usage**: 128MB RAM (without GPU)
-- **CPU Usage**: 15% (Intel i7 standard)
-
-### Accuracy Metrics
-- **Confidence Variance**: Standard deviation 0.036 (stable performance)
-- **Highest Performance**: 96.9% (Action genre)
-- **Lowest Performance**: 88.7% (above overall average)
-- **Consistency**: 90%+ achievement rate 80% (high consistency)
-
-### Scalability Indicators
-- **Data Scaling**: 105k → 1M recipe scaling possible
-- **Model Scaling**: Individual model support per genre
-- **API Throughput**: 1000 requests per second processing capability
-- **Concurrent Users**: 100 simultaneous connection support
+### Git LFS 대용량 파일 관리
+- **추적 대상**: *.json, *.pth, *.pkl
+- **총 LFS 용량**: 1.6GB
+- **업로드 성능**: 평균 속도 14MB/s
+- **파일 개수**: 42개 대용량 파일
 
 ---
 
-## Business Applications
+## 성능 벤치마크
 
-### Market Application Areas
-1. **Film Industry**: Automated thematic perfume production
-2. **Perfume Brands**: Story-based product development
-3. **Theme Parks**: Immersive experience content
-4. **Marketing**: Emotional marketing tools
-5. **Education**: Olfactory-based learning tools
+### 예측 성능
+- **처리 속도**: 평균 예측 시간 3ms
+- **배치 처리**: 초당 1000개 장면 처리 가능
+- **메모리 사용량**: 128MB RAM (GPU 없이)
+- **CPU 사용률**: 15% (Intel i7 기준)
 
-### Economic Impact
-- **Development Cost Reduction**: 90% time reduction compared to conventional methods
-- **Quality Improvement**: Professional-level achievement with 92.1% confidence
-- **Scalability**: Unlimited recipe generation capability
-- **Automation**: 24-hour unmanned operation system
+### 정확도 메트릭
+- **신뢰도 분산**: 표준편차 0.036 (안정적 성능)
+- **최고 성능**: 96.9% (액션 장르)
+- **최저 성능**: 88.7% (전체 평균 이상)
+- **일관성**: 90%+ 달성률 80% (높은 일관성)
 
----
-
-## Future Development Plans
-
-### Short-term Improvements (3 months)
-- Comedy genre confidence improvement (89.6% → 92%+)
-- Real-time user feedback learning system construction
-- Mobile app interface development
-- Cloud deployment and API servicization
-
-### Medium-term Development Plan (6 months)
-- Additional input support for audio and color information
-- Personalized perfume recommendation system
-- Automated ordering system linked with manufacturers
-- Global fragrance database expansion
-
-### Long-term Vision (1 year)
-- VR/AR-linked immersive experience platform
-- Real-time movie screening perfume distribution system
-- AI-based new fragrance component development
-- Global perfume brand partnership expansion
+### 확장성 지표
+- **데이터 확장**: 105k → 1M 레시피 확장 가능
+- **모델 확장**: 장르별 개별 모델 지원
+- **API 처리량**: 초당 1000 요청 처리 가능
+- **동시 사용자**: 100명 동시 접속 지원
 
 ---
 
-## Technical Requirements
+## 비즈니스 응용
 
-### System Requirements
-- **Python**: 3.8 or higher
-- **PyTorch**: 1.12 or higher
-- **Memory**: Minimum 4GB RAM (8GB recommended)
-- **Storage**: 2GB or more (models + data)
-- **Network**: 100Mbps or higher for API services
+### 시장 응용 분야
+1. **영화 산업**: 자동화된 테마 향수 제작
+2. **향수 브랜드**: 스토리 기반 제품 개발
+3. **테마파크**: 몰입형 체험 콘텐츠
+4. **마케팅**: 감정적 마케팅 도구
+5. **교육**: 후각 기반 학습 도구
 
-### Dependency Packages
+### 경제적 효과
+- **개발 비용 절감**: 기존 방법 대비 90% 시간 단축
+- **품질 향상**: 92.1% 신뢰도로 전문가 수준 달성
+- **확장성**: 무제한 레시피 생성 기능
+- **자동화**: 24시간 무인 운영 시스템
+
+---
+
+## 향후 개발 계획
+
+### 단기 개선사항 (3개월)
+- 코미디 장르 신뢰도 개선 (89.6% → 92%+)
+- 실시간 사용자 피드백 학습 시스템 구축
+- 모바일 앱 인터페이스 개발
+- 클라우드 배포 및 API 서비스화
+
+### 중기 개발 계획 (6개월 - 1년)
+- 오디오 및 색상 정보 추가 입력 지원
+- 개인화된 향수 추천 시스템
+- 제조업체와 연동된 자동 주문 시스템
+- 글로벌 향료 데이터 통합
+
+### 장기 비전 (1 - 3년)
+- 메타버스/VR 향수 체험
+- AI 조향사 시스템
+- 개인 맞춤 향수 제조 로봇
+- 글로벌 향수 추천 플랫폼
+
+---
+
+## 기술 요구사항
+
+### 시스템 요구사항
+- **Python**: 3.8 이상
+- **PyTorch**: 1.12 이상
+- **메모리**: 최소 4GB RAM (8GB 권장)
+- **저장공간**: 2GB 이상 (모델 + 데이터)
+- **네트워크**: API 서비스용 100Mbps 이상
+
+### 의존성 패키지
 ```
 torch>=1.12.0
 pandas>=1.5.0
@@ -302,11 +302,7 @@ redis>=4.3.0
 psycopg2>=2.9.0
 ```
 
-### Database Requirements
-- **PostgreSQL**: 15 or higher (pgvector extension)
-- **Redis**: 7.0 or higher (caching)
-- **Disk Space**: 10GB or more (data + indexes)
-
----
-
-This system is trained with 105,000 high-quality data achieving 92.1% average confidence, representing an innovative fusion of film and perfume industries through advanced AI technology.
+### 데이터베이스 요구사항
+- **PostgreSQL**: 15 이상 (pgvector 확장)
+- **Redis**: 7.0 이상 (캐싱)
+- **디스크 공간**: 10GB 이상 (데이터 + 인덱스)
