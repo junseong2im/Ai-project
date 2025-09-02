@@ -284,3 +284,27 @@ psycopg2>=2.9.0
 - **PostgreSQL**: 15 이상 (pgvector 확장)
 - **Redis**: 7.0 이상 (캐싱)
 - **디스크 공간**: 10GB 이상 (데이터 + 인덱스)
+
+Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+
+Copyright (c) 2025 Junseong Kim
+
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 
+International License. To view a copy of this license, visit:
+
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+Summary of Terms:
+- You are free to:
+  * Share — copy and redistribute the material in any medium or format
+  * Adapt — remix, transform, and build upon the material
+
+- Under the following terms:
+  * Attribution — You must give appropriate credit, provide a link to the license, 
+    and indicate if changes were made.
+  * NonCommercial — You may not use the material for commercial purposes.
+
+- Notices:
+  * No warranties are given. The license may not give you all of the permissions 
+    necessary for your intended use. For example, other rights such as publicity, 
+    privacy, or moral rights may limit how you use the material.
